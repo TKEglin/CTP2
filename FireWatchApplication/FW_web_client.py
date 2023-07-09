@@ -11,7 +11,7 @@ class FW_TCP_client:
         self.PORT = PORT
 
     def request_device_data(self) -> Dict[int, MQTT_device]:
-        """Returns a list of MQTT_device"""
+        """Returns a list of MQTT_devices"""
 
         print("Retrieving device data from server...")
         print(f" Host: {self.HOST}")
@@ -30,7 +30,7 @@ class FW_TCP_client:
 
     def send_event(self, event: HeucodEvent):
         
-        print(f"Sending {event.event_type} event to server...")
+        print(f"Sending {event.event_type.name} event with location {event.location} to server...")
         print(f" Host: {self.HOST}")
         print(f" Port: {self.PORT}\n")
 

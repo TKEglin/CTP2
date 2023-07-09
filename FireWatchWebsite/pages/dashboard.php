@@ -120,8 +120,8 @@
                                             echo "<tr>";
                                             echo "<td class=\"tm-product-name\">", $event["Type"], "</td>";
                                             echo "<td class=\"text-center\">", $event["ID"], "</td>";
-                                            if(!$event["Location"] === null){
-                                                echo "<td class=\"text-center\">_</td>";
+                                            if($event["Location"] === "None"){
+                                                echo "<td class=\"text-center\"></td>";
                                             }
                                             else{
                                                 echo "<td class=\"text-center\">", $event["Location"], "</td>";

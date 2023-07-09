@@ -37,7 +37,6 @@ def run_firewatch():
             try:
                 client.send_event(HeucodEvent(event_type      = HEvent.SystemOff,
                                               event_type_enum = HEvent.SystemOff.value,
-                                              location        = "N/A",
                                               timestamp       = time()))
             except:
                 print("Could not connect. Message not sent.")

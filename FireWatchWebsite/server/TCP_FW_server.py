@@ -76,9 +76,9 @@ def connection_handler(connection: socket.socket, address):
             event = message
 
             # Storing in database
-            query = (f"INSERT INTO eventdata(Type, ID, Location, Timestamp) VALUES ( '{event.event_type}', '{event.event_type_enum}', '{event.sensor_location}', '{event.timestamp}')")
+            query = (f"INSERT INTO eventdata(Type, ID, Location, Timestamp) VALUES ( '{event.event_type}', '{event.event_type_enum}', '{event.location}', '{event.timestamp}')")
             cursor.execute(query)
-            print(f"  Inserted event {event.event_type} from location {event.sensor_location}.")
+            print(f"  Inserted event {event.event_type} from location {event.location}.")
 
             # Updating system status data
             status: str

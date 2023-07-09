@@ -15,7 +15,7 @@ UNWATCHED_TIME_LIMIT = 1200000000
 
 class FW_controller():
     # Dictionary of all connected devices mapped to UIDs:
-    devices = Dict[int, MQTT_device]
+    devices: Dict[int, MQTT_device]
     # Dict of room object mapped to room names. Contains UIDs of all room devices
     rooms: Dict[str, FW_room] = dict()
     # List of names of occupied rooms of the rooms dict
@@ -44,27 +44,22 @@ class FW_controller():
             device: MQTT_device
             room = device.room
             # Adding to rooms
-            print("\nloop start")
-            print("room: " + room + " device name: " + device.name)
-            print("room in dict" + str(room not in list(self.rooms.keys())))
             if(room not in list(self.rooms.keys())):
                 self.rooms[room] = FW_room()
-                print("room " + room + " instantiated")
                 self.rooms[room].name = room
             
-            print("adding device to function lists")
             match device.function:
                 case "Presence Sensor":
                     self.rooms[room].sensor_devices.append(device)
                     self.sensor_devices.append(device)
                 case "Warning Device":
                     self.rooms[room].warning_devices.append(device)
+                    self.warning_devices.append(device)
                 case "Power Plug":
                     self.rooms[room].watched_devices.append(device)
                     self.watched_devices.append(device)
                     self.rooms[room].watched_device = True
             
-            print("loop end\n")
 
         # Subscribing to topics and starting listener
         print("Controller starting listener")
@@ -78,18 +73,17 @@ class FW_controller():
         # Sending startup event to web server
         self.web_client.send_event(HeucodEvent(event_type = HEvent.SystemOn,
                                                event_type_enum = HEvent.SystemOn.value,
-                                               location = "_", 
                                                timestamp = time()))
+
 
         # Main control loop
         while True:
             # Checking for time exceeded on unwatched device
-            if(0
+            if(i < 1
                 # !!write test here!!
                ):
                 self.web_client.send_event(HeucodEvent(event_type = HEvent.TimelimitExceeded,
                                                         event_type_enum = HEvent.TimelimitExceeded.value,
-                                                        location = "", 
                                                         timestamp = time()))
                 
                 for device in self.warning_devices:
@@ -102,17 +96,19 @@ class FW_controller():
                 for device in self.watched_devices:
                     device: MQTT_device
                     self.web_client.send_event(HeucodEvent(event_type = HEvent.CuttingPowerToDevice,
-                                                        event_type_enum = HEvent.CuttingPowerToDevice.value,
-                                                        location = device.room,
-                                                        timestamp = time()))
+                                                            event_type_enum = HEvent.CuttingPowerToDevice.value,
+                                                            location = device.room,
+                                                            timestamp = time()))
+                
                 # TurnOffStove()
                 # TurnOnLight()
+
 
             if not self.message_queue.empty():
                 message: FW_Device_Message
                 message = self.message_queue.get()
 
-                print(f"Controller received event: {message.event}")
+                print(f"Controller received payload: {message.payload}")
 
                 
 

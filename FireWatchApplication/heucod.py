@@ -44,7 +44,7 @@ class HeucodEventType(Enum):
     # Controller events 20-29
     TimelimitExceeded = (20, "FireWatch.Controller.TimelimitExceeded")
     CuttingPowerToDevice = (21, "FireWatch.Controller.CuttingPowerToDevice")
-    TurningOnWarningLight = (22, "FireWatch.Controller.TurningOnWarningLights")
+    TurningOnWarningLight = (22, "FireWatch.Controller.TurningOnWarningLight")
 
 
 
