@@ -17,6 +17,7 @@ class FW_MQTT_handler:
     # Listening Functionality #
     #                         #
     def subscribe(self, topic: str):
+        print("    Subscribing to topic: " + topic)
         self.MQTT_client.subscribe(topic)
 
     def start_listener(self):
@@ -26,17 +27,17 @@ class FW_MQTT_handler:
     def listener(self):
         self.MQTT_client.loop_forever()
     
-    def message_received(client, userdata, message):
+    def message_received(self, client, userdata, message):
         # Add message to queue
         fw_message = FW_Device_Message()
 
         # Retrieving UID and room from topic
         topic_components: str = message.topic.split("/")
-        fw_message.device_uid = topic_components[2]
+        fw_message.device_uid = int(topic_components[2])
         fw_message.room       = topic_components[1]
-        fw_message.payload    = message.payload
+        fw_message.payload    = bytes.decode(message.payload, "utf-8")
 
-        client.message_queue.put(fw_message)
+        self.message_queue.put(fw_message)
 
 
     #                          #

@@ -6,14 +6,14 @@ from heucod import HeucodEventType as HEvent
 from dataclasses import dataclass, replace as dataclass_replace
 
 
+class DFunction(Enum):
+    """Enumerator of the different device functions"""
+    PresenceSensor = (1, "Presence Sensor")
+    WarningDevice  = (2, "Warning Device")
+    PowerPlug      = (3, "Power Plug")
+
 @dataclass
 class MQTT_device_type:
-    class MQTT_device_function(Enum):
-        """Not currently in use"""
-        PresenceSensor = (1, "Presence Sensor")
-        WarningDevice  = (2, "Warning Device")
-        PowerPlug      = (3, "Power Plug")
-
     brand_name:          str = None
     general_topic:       str = None # Overall topic that the device publishes to
     device_function:     str = None
@@ -38,6 +38,8 @@ class MQTT_device:
     function: str
     specific_topic: str = None # topic = type.general_topic + specific_topic + type.actuator_topic/.sensor_topic
     type: MQTT_device_type
+    unwatched: bool = None
+    unwatched_start_time: int = None
 
     def fromSQL(sql_rows: list) -> dict():
         """Takes the rows of a sql SELECT result and converts it to a python dict of MQTT_devices"""
@@ -73,8 +75,8 @@ class FW_room:
 
 @dataclass
 class FW_Device_Message:
-    device_uid: int
-    room: str
-    payload: HEvent
+    device_uid: int = None
+    room: str = None
+    payload = None
 
 
