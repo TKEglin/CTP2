@@ -1,7 +1,6 @@
 from __future__ import annotations
 import json
 import re
-from types import SimpleNamespace
 from copy import deepcopy
 from dataclasses import dataclass, replace as dataclass_replace
 from datetime import datetime, timezone
@@ -10,17 +9,6 @@ from typing import Any, Union
 from uuid import UUID
 
 
-class MQTT_device:
-    name : str  # Name of device
-    room : str  # Location of device
-    type : str  # Sensor, light or power plug
-    topic: str  # Topic to listen to
-
-    def toJSON(self):
-        return json.dumps(self, default=vars)
-    
-    def fromJSON(JSON_object) -> MQTT_device:
-        return json.loads(JSON_object, object_hook=lambda d: SimpleNamespace(**d))
 
 
 class HeucodEventType(Enum):
@@ -47,15 +35,16 @@ class HeucodEventType(Enum):
 
     # Sensor events 10-19
     WatchedDeviceActivated = (10, "FireWatch.Sensor.WatchedDeviceActivated")
-    WatcherDetected = (11, "FireWatch.Sensor.WatcherDetected")
-    WatcherLeftRoom = (12, "FireWatch.Sensor.WatcherLeftRoom")
-    OccupantDetected = (13, "FireWatch.Sensor.OccupantDetected")
-    OccupantLeftRoom = (14, "FireWatch.Sensor.OccupantLeftRoom")
+    WatchedDeviceShutdown = (11, "FireWatch.Sensor.WatchedDeviceShutdown")
+    WatcherDetected = (12, "FireWatch.Sensor.WatcherDetected")
+    WatcherLeftRoom = (13, "FireWatch.Sensor.WatcherLeftRoom")
+    OccupantDetected = (14, "FireWatch.Sensor.OccupantDetected")
+    OccupantLeftRoom = (15, "FireWatch.Sensor.OccupantLeftRoom")
 
     # Controller events 20-29
     TimelimitExceeded = (20, "FireWatch.Controller.TimelimitExceeded")
     CuttingPowerToDevice = (21, "FireWatch.Controller.CuttingPowerToDevice")
-    TurningOnWarningLights = (22, "FireWatch.Controller.TurningOnWarningLights")
+    TurningOnWarningLight = (22, "FireWatch.Controller.TurningOnWarningLight")
 
 
 
@@ -257,44 +246,3 @@ class HeucodEvent:
         # that inherits json.JSONEncoder. It has only the default() function this is called by
         # dumps() when serializing the class.
         return json.dumps(self, cls=self.json_encoder)
-
-
-if __name__ == "__main__":
-    # Example for a PIR event that detected a person leaving its bed. The sensor reports occupancy
-    # as false, since it doesn't detect movement. Once it detects movement, it reports occupancy = true.
-    event_bed_occupancy = HeucodEvent()
-    event_bed_occupancy.id_ = "0001"
-    # In this example, yo ucan use the already provided HeucodEventType values to indicate what is
-    # the type of the event. Using them can improve integration with other clients/servers since
-    # all of them are usign a standard values.
-    event_bed_occupancy.event_type = HeucodEventType.BedOccupancyEvent
-    event_bed_occupancy.event_type_enum = int(HeucodEventType.BedOccupancyEvent)
-    event_bed_occupancy.timestamp = datetime.now(tz=timezone.utc)
-    event_bed_occupancy.value = True
-    event_bed_occupancy.device_vendor = "Aqara"
-    event_bed_occupancy.device_model = "RTCGQ11LM"
-    event_bed_occupancy.gateway_id = "gateway-0001"
-    event_bed_occupancy.patient_id = "patient-0001"
-    # Get the event as JSON
-    print(event_bed_occupancy.to_json())
-
-    # Example for a PIR event that detected a person leaving the kitchen, i.e. the sensor reported
-    # an occupancy = false in the value attribute.
-    event_leave_kitchen = HeucodEvent()
-    event_leave_kitchen.id_ = "0002"
-    # In this example, yo ucan use the already provided HeucodEventType values to indicate what is
-    # the type of the event. Using them can imporove integration with other clients/servers since
-    # all of them are usign a standard values.
-    event_leave_kitchen.event_type = HeucodEventType.OccupantDetected
-    event_leave_kitchen.event_type_enum = int(HeucodEventType.RoomMovementEvent)
-    event_leave_kitchen.timestamp = datetime.now(tz=timezone.utc)
-    event_leave_kitchen.value = False
-    event_leave_kitchen.device_vendor = "Aqara"
-    event_leave_kitchen.device_model = "RTCGQ11LM"
-    event_leave_kitchen.gateway_id = "gateway-0001"
-    event_leave_kitchen.patient_id = "patient-0002"
-    # Get the event as JSON
-    print(event_leave_kitchen.to_json())
-    
-    event = HeucodEvent.from_json('{"timestamp": 1648473393, "value": true, "eventType": "OpenCare.EVODAY.EDL.BedOccupancyEvent", "eventTypeEnum": 82043, "patientId": "patient-0001", "deviceModel": "RTCGQ11LM", "deviceVendor": "Aqara", "gatewayId": "gateway-0001", "id": "0001"}')
-    print(event)

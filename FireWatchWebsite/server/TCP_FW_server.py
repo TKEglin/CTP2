@@ -91,7 +91,8 @@ def connection_handler(connection: socket.socket, address):
                 case HEvent.SystemOff.value:
                     status = "System not running"
                     statuscolor = "gray"
-                case HEvent.WatchedDeviceActivated.value:
+                case (HEvent.WatchedDeviceActivated.value |
+                      HEvent.WatcherDetected):
                     status = "System running | Stove in use"
                     statuscolor = "green"
                 case HEvent.WatcherLeftRoom.value:

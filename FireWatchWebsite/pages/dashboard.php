@@ -19,7 +19,7 @@
 
     # Refresh Variables
     $page = $_SERVER['PHP_SELF'];
-    $updaterate = "10";
+    $updaterate = "5";
 
     # Timezone
     date_default_timezone_set('Europe/Copenhagen');
