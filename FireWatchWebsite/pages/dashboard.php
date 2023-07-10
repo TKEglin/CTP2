@@ -19,7 +19,7 @@
 
     # Refresh Variables
     $page = $_SERVER['PHP_SELF'];
-    $updaterate = "120";
+    $updaterate = "10";
 
     # Timezone
     date_default_timezone_set('Europe/Copenhagen');
@@ -108,7 +108,7 @@
                                 <thead>
                                     <tr class="tm-bg-gray">
                                         <th scope="col">Event Type</th>
-                                        <th scope="col" class="text-center">ID</th>
+                                        <th scope="col" class="text-center">Event ID</th>
                                         <th scope="col" class="text-center">Location</th>
                                         <th scope="col">Time</th>
                                     </tr>
