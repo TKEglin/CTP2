@@ -85,21 +85,22 @@ def connection_handler(connection: socket.socket, address):
             statuscolor: str
             status_changed = True
             match event.event_type_enum:
-                case HEvent.SystemOn.value:
-                    status = "System running | Stove not in use"
+                case (HEvent.SystemOn.value | 
+                      HEvent.SystemRestart.value):
+                    status = "System running | Device not in use"
                     statuscolor = "teal"
                 case HEvent.SystemOff.value:
                     status = "System not running"
                     statuscolor = "gray"
                 case (HEvent.WatchedDeviceActivated.value |
-                      HEvent.WatcherDetected):
-                    status = "System running | Stove in use"
+                      HEvent.WatcherDetected.value):
+                    status = "System running | Device in use"
                     statuscolor = "green"
                 case HEvent.WatcherLeftRoom.value:
-                    status = "System running | Stove unwatched"
+                    status = "System running | Device unwatched"
                     statuscolor = "orange"
                 case HEvent.TimelimitExceeded.value:
-                    status = "System running | Unwatched stove shutdown"
+                    status = "Time Exceeded | All devices shutdown"
                     statuscolor = "red"
                 case _:
                     status_changed = False

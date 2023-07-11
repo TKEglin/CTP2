@@ -32,7 +32,7 @@ class HeucodEventType(Enum):
     NullEvent = (0, "FireWatch.System.NoEvent")
     SystemOn = (1, "FireWatch.System.SystemOn")
     SystemOff = (2, "FireWatch.System.SystemOff")
-    SystemRestart = (3, "FireWatch.System.SystemOff")
+    SystemRestart = (3, "FireWatch.System.SystemRestart")
 
     # Sensor events 10-19
     WatchedDeviceActivated = (10, "FireWatch.Sensor.WatchedDeviceActivated")
