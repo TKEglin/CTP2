@@ -2,7 +2,6 @@ import json
 from types import SimpleNamespace
 from typing import List
 from enum import Enum
-from heucod import HeucodEventType as HEvent
 from dataclasses import dataclass, replace as dataclass_replace
 
 
@@ -17,12 +16,15 @@ class MQTT_device_type:
     brand_name:          str = None
     general_topic:       str = None # Overall topic that the device publishes to
     device_function:     str = None
+    # Actuator values
     actuator_topic:      str = None  
     actuator_value_name: str = None # Example: "State" for a power plug
     actuator_enable:     str = None # JSON format. Example: "{"state": "ON"}"
     actuator_disable:    str = None # JSON format. Example: "{"state": "OFF"}"
+    # Sensor values
     sensor_topic:        str = None
     sensor_value_name:   str = None # Example: "Occupancy" for a motion sensor
+    sensor_threshold:    int = None # Used for power plugs and similar devices
 
     def toJSON(self):
         return json.dumps(self, default=vars)
@@ -73,9 +75,10 @@ class MQTT_device:
 
 
 
+@dataclass
 class FW_room:
-    name: str
-    occupied: bool = False
+    name          : str
+    occupied      : bool = False
     watched_device: bool = False
     
     def __init__(self) -> None:
@@ -87,7 +90,7 @@ class FW_room:
 @dataclass
 class FW_Device_Message:
     device_uid: int = None
-    room: str = None
-    payload = None
+    room: str       = None
+    payload         = None
 
 

@@ -8,13 +8,14 @@ from time import time
 
 
 def start_controller(HOST:str, PORT: str, restart: bool):
-    client = FW_TCP_client(HOST, PORT)
     
+    client = FW_TCP_client(HOST, PORT)
     controller = FW_controller(client)
+    
     exit_value = controller.run_controller(restart)
     if(exit_value == 1):
-        print("\nTime limit exceeded, controller shut down")
-        print("Input 'restart' to restart the controller.")
+        print("\n !!Time limit exceeded, controller shut down!!")
+        print(  "   Input 'restart' to restart the controller"  )
     
 
 
@@ -27,32 +28,32 @@ def run_firewatch():
     print("Initializing Firewatch controller...")
 
     # Starting controller
-    print("  Starting controller thread...")
     controller_thread = Thread(target=start_controller, 
                                 args=(HOST, PORT, False), 
                                 daemon=True)
     controller_thread.start()
     print("  Controller thread started.")
 
-    print("Firewatch controller initialized and running.\n\n")
-    print("Input 'exit' to shut down the system.")
+    print("Firewatch controller initialized and running.")
+    print("Input 'exit' to shut down the system.\n")
 
     # Ready to process input
     while True:
         user_input = input()
         if(user_input in ('exit', 'EXIT')):
-            print("\nFirewatch shutting down")
-
             client.send_event(HeucodEvent(event_type      = HEvent.SystemOff,
-                                            event_type_enum = HEvent.SystemOff.value,
-                                            timestamp       = time()))
-            
+                                          event_type_enum = HEvent.SystemOff.value,
+                                          timestamp       = time()))
+            print("\nFirewatch shutting down")
             sys.exit(0)
+            
         if(user_input in ('restart', 'RESTART') and not controller_thread.is_alive()):  
+            print("\nRestarting controller thread...")
             controller_thread = Thread(target=start_controller, 
                                         args=(HOST, PORT, True), 
                                         daemon=True            )
             controller_thread.start()
+            print("Controller thread restarted.")
                     
 
 

@@ -1,7 +1,7 @@
 import paho.mqtt.client as mqtt
 from threading import Thread
 from queue import Queue
-from FW_datatypes import MQTT_device, MQTT_device_type, FW_Device_Message
+from FW_datatypes import FW_Device_Message
 
 
 class FW_MQTT_handler:
