@@ -11,7 +11,7 @@ from FW_MQTT_handler import FW_MQTT_handler
 from FW_datatypes import FW_Device_Message
 
 
-UNWATCHED_TIME_LIMIT = 10 # seconds
+UNWATCHED_TIME_LIMIT = 30 # seconds
 
 class FW_controller():
     
@@ -98,6 +98,7 @@ class FW_controller():
             for device in self.unwatched_devices:
                 device: MQTT_device
                 time_elapsed = time() - device.unwatched_start_time
+                # TO DO: IMPLEMENT TIME ELAPSED
                 if(time_elapsed > UNWATCHED_TIME_LIMIT):
                     time_exceeded = True
                     
@@ -139,7 +140,7 @@ class FW_controller():
                 room  : FW_room     = self.rooms[device.room]
                 state : str         = json_object[device.type.sensor_value_name]
                 
-                print(f"Controller received payload: {message.payload} from room: {device.room} with uid: {device.uid}")
+                print(f"Received payload: {message.payload} | Room: {device.room} | UID: {device.uid}")
                 
                 if(device.function == "Presence Sensor"):
                     if(state == "True"):
@@ -203,12 +204,14 @@ class FW_controller():
                         
                         
                 elif(device.function == "Power Plug"):
+                    # if power above threshold:
                     if(int(state) >= device.type.sensor_threshold):
                         # Checking state first to avoid continuous updates of device
                         if(not device.in_use):
                             self.devices_in_use.append(device)
                             # If the room of the device is unoccupied, the device is unwatched
                             if(not self.rooms[device.room].occupied):
+                                print(f"    Room {device.room} not occupied when device activated.")
                                 device.unwatched = True
                                 device.unwatched_start_time = time()
                                 self.unwatched_devices.append(device)
@@ -220,7 +223,6 @@ class FW_controller():
                             elif(self.devices_in_use.__len__() == 1):
                                 self.web_client.send_event(HeucodEvent(event_type = HEvent.AllDevicesWatched,
                                                                         event_type_enum = HEvent.AllDevicesWatched.value,
-                                                                        location = device.room,
                                                                         timestamp = time()))
                             device.in_use = True
                             print(f"    Device with name {device.name} in room {device.room} now in use.")
@@ -228,13 +230,13 @@ class FW_controller():
                                                                     event_type_enum = HEvent.WatchedDeviceActivated.value,
                                                                     location = device.room,
                                                                     timestamp = time()))
-                    else:
+                    # if power below threshold:
+                    else: 
                         if(device.in_use):
                             self.devices_in_use.remove(device)
                             if(self.devices_in_use.__len__() == 0):
                                 self.web_client.send_event(HeucodEvent(event_type = HEvent.NoDevicesInUse,
                                                                         event_type_enum = HEvent.NoDevicesInUse.value,
-                                                                        location = device.room,
                                                                         timestamp = time()))
                                 
                             device.in_use = False

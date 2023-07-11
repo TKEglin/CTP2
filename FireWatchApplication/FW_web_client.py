@@ -30,9 +30,9 @@ class FW_TCP_client:
 
     def send_event(self, event: HeucodEvent):
         
-        console_message = f" \nSending {event.event_type.name} event"
+        console_message = f" \nSending '{event.event_type.name}' event"
         if(event.location): 
-            console_message += f" with location {event.location}"
+            console_message += f" with location '{event.location}'"
         console_message += f" to server."
         print(console_message)
         print(f" Host: {self.HOST}")
