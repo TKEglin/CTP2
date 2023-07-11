@@ -92,15 +92,15 @@ def connection_handler(connection: socket.socket, address):
                     statuscolor = "gray"
                 case (HEvent.SystemOn.value | 
                       HEvent.SystemRestart.value |
-                      HEvent.NoDevicesInUse):
+                      HEvent.NoDevicesInUse.value):
                     status = "System running | No devices in use"
                     statuscolor = "teal"
-                case (HEvent.AllDevicesWatched):
+                case HEvent.AllDevicesWatched.value:
                     status = "System running | Device in use"
                     statuscolor = "green"
                 case HEvent.UnwatchedDevice.value:
                     status = "System running | Device unwatched"
-                    statuscolor = "yellow"
+                    statuscolor = "orange"
                 case HEvent.TimelimitExceeded.value:
                     status = "Time Exceeded | All devices shutdown"
                     statuscolor = "red"
