@@ -34,8 +34,11 @@ class FW_TCP_client:
         print(f" Host: {self.HOST}")
         print(f" Port: {self.PORT}\n")
 
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as TCPsocket:
-            TCPsocket.connect((self.HOST, self.PORT))
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as TCPsocket:
+                TCPsocket.connect((self.HOST, self.PORT))
 
-            TCPsocket.send(pickle.dumps(event))
+                TCPsocket.send(pickle.dumps(event))
+        except:
+            print("Failed to send event. Web server might be down.")
 

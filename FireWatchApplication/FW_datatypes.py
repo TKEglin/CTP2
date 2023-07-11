@@ -36,9 +36,10 @@ class MQTT_device:
     name: str
     room: str
     function: str
-    specific_topic: str = None # topic = type.general_topic + specific_topic + type.actuator_topic/.sensor_topic
+    specific_topic: str = None
     type: MQTT_device_type
-    unwatched: bool = None
+    in_use: bool = True # Set for watched devices when they are in use
+    unwatched: bool = False
     unwatched_start_time: int = None
 
     def fromSQL(sql_rows: list) -> dict():
@@ -57,20 +58,30 @@ class MQTT_device:
         return devices
     
     def generate_subscription_topic(self) -> str:
-        # Example           zigbee2mqtt   / kitchen   / 12         / set
+        # Example           zigbee2mqtt   / kitchen   / 12         / 
         # Topic formatting: general_topic + room name + device uid + sensor topic
-        topic = self.type.general_topic + "/" + self.room.replace(" ", "_") + "/" + str(self.uid) + "/" + self.type.sensor_topic
+        topic = self.type.general_topic + "/" + self.room + "/" + str(self.uid) + "/" + self.type.sensor_topic
 
         return topic
+
+    def generate_publish_topic(self) -> str:
+        # Example           zigbee2mqtt   / kitchen   / 12         / 
+        # Topic formatting: general_topic + room name + device uid + actuator topic
+        topic = self.type.general_topic + "/" + self.room + "/" + str(self.uid) + "/" + self.type.actuator_topic
+
+        return topic
+
 
 
 class FW_room:
     name: str
     occupied: bool = False
     watched_device: bool = False
-    watched_devices: List[MQTT_device] = list()
-    sensor_devices:  List[MQTT_device] = list()
-    warning_devices: List[MQTT_device] = list()
+    
+    def __init__(self) -> None:
+        self.watched_devices: List[MQTT_device] = list()
+        self.sensor_devices:  List[MQTT_device] = list()
+        self.warning_devices: List[MQTT_device] = list()
 
 
 @dataclass

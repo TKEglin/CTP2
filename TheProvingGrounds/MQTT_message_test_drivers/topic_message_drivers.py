@@ -1,16 +1,14 @@
 import paho.mqtt.client as mqtt
 
-def occ_kitchen(state: str):
+
+def SendOccupancyEvent(room: str, id: str, state: str):
     MQTT_client = mqtt.Client()
     MQTT_client.connect("127.0.0.1", 1883)
 
-    MQTT_client.publish("Zigbee2mqtt/Kitchen/18/", "{\"occupancy\": \"" + state + "\"}")
+    MQTT_client.publish(f"Zigbee2mqtt/{room}/{id}/", "{\"occupancy\": \"" + state + "\"}")
 
-def occ_living(state: str):
-    MQTT_client = mqtt.Client()
-    MQTT_client.connect("127.0.0.1", 1883)
+def SendPowerOnEvent(room: str, id: str, state: str):
+    1
 
-    MQTT_client.publish("Zigbee2mqtt/Living_Room/20/", "{\"occupancy\": \"" + state + "\"}")
-
-occ_kitchen("False")
-occ_living("False")
+SendOccupancyEvent("Kitchen", "18", "False")
+SendOccupancyEvent("Living Room", "20", "True")
