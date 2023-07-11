@@ -41,6 +41,10 @@ class HeucodEventType(Enum):
     WatcherLeftRoom = (13, "FireWatch.Sensor.WatcherLeftRoom")
     OccupantDetected = (14, "FireWatch.Sensor.OccupantDetected")
     OccupantLeftRoom = (15, "FireWatch.Sensor.OccupantLeftRoom")
+    UnwatchedDevice = (16, "FireWatch.Sensor.UnwatchedDevice")
+    AllDevicesWatched = (17, "FireWatch.Sensor.AllDevicesWatched")
+    NoDevicesInUse = (18, "FireWatch.Sensor.NoDevicesInUse")
+    DeviceInUse = (19, "FireWatch.Sensor.DeviceInUse")
 
     # Controller events 20-29
     TimelimitExceeded = (20, "FireWatch.Controller.TimelimitExceeded")

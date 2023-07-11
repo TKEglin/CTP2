@@ -17,12 +17,4 @@ def SendPowerEvent(room: str, id: str, state: str):
 
 SendPowerEvent("Kitchen", "17",  "100")
 
-sleep(2.4)
-
-SendOccupancyEvent("Kitchen", "18", "False")
-
-sleep(0.001)
-
-SendOccupancyEvent("Living Room", "20", "True")
-
-sleep(0.1)
+sleep(1)

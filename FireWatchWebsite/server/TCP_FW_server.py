@@ -6,6 +6,8 @@ from heucod import HeucodEventType as HEvent
 import mysql.connector
 import pickle
 
+# Used to handle status display
+UnwatchedDevice = False
 
 def run_server():
     hostname = socket.gethostname()
@@ -85,20 +87,20 @@ def connection_handler(connection: socket.socket, address):
             statuscolor: str
             status_changed = True
             match event.event_type_enum:
-                case (HEvent.SystemOn.value | 
-                      HEvent.SystemRestart.value):
-                    status = "System running | Device not in use"
-                    statuscolor = "teal"
                 case HEvent.SystemOff.value:
                     status = "System not running"
                     statuscolor = "gray"
-                case (HEvent.WatchedDeviceActivated.value |
-                      HEvent.WatcherDetected.value):
+                case (HEvent.SystemOn.value | 
+                      HEvent.SystemRestart.value |
+                      HEvent.NoDevicesInUse):
+                    status = "System running | No devices in use"
+                    statuscolor = "teal"
+                case (HEvent.AllDevicesWatched):
                     status = "System running | Device in use"
                     statuscolor = "green"
-                case HEvent.WatcherLeftRoom.value:
+                case HEvent.UnwatchedDevice.value:
                     status = "System running | Device unwatched"
-                    statuscolor = "orange"
+                    statuscolor = "yellow"
                 case HEvent.TimelimitExceeded.value:
                     status = "Time Exceeded | All devices shutdown"
                     statuscolor = "red"

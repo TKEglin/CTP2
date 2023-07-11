@@ -3,6 +3,7 @@ from types import SimpleNamespace
 from typing import List
 from enum import Enum
 from dataclasses import dataclass, replace as dataclass_replace
+from time import time
 
 
 class DFunction(Enum):
@@ -40,7 +41,7 @@ class MQTT_device:
     function: str
     specific_topic: str = None
     type: MQTT_device_type
-    in_use: bool = True # Set for watched devices when they are in use
+    in_use: bool = False # Set for watched devices when they are in use
     unwatched: bool = False
     unwatched_start_time: int = None
 
