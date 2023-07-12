@@ -121,13 +121,6 @@
                                         }, 1000)
                                     </script>";
                             ?>
-                            <script>
-                                const date = new Date()
-                                
-                                //alert(date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds())
-                                if()
-
-                            </script>
                     </div>
                 </div>
 
