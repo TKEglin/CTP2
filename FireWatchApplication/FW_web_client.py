@@ -15,7 +15,7 @@ class FW_TCP_client:
     def request_device_data(self) -> Dict[int, MQTT_device]:
         """Returns a list of MQTT_devices"""
 
-        print("Retrieving device data from server...")
+        print("Retrieving device data from server.")
         print(f" Host: {self.HOST}")
         print(f" Port: {self.PORT}\n")
 
@@ -23,7 +23,7 @@ class FW_TCP_client:
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as TCPsocket:
                 TCPsocket.connect((self.HOST, self.PORT))
 
-                TCPsocket.send(pickle.dumps("send_device_data"))
+                TCPsocket.send(pickle.dumps("send_device_data:"))
                 
                 device_rows = pickle.loads(TCPsocket.recv(16384))
 
@@ -32,18 +32,32 @@ class FW_TCP_client:
             print("Failed to retrieve device data. Ensure that web server is running and try again.")
             
         return devices
+    
+    
+    def send_unwatched_timestamp(self, timestamp: int):
 
-    def send_event(self, event: HEvent, room: str = None):
+        print("Sending unwatched timestamp to server.")
+
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as TCPsocket:
+                TCPsocket.connect((self.HOST, self.PORT))
+
+                TCPsocket.send(pickle.dumps(f"longest_unwatched_timestamp:{timestamp}"))
+        except:
+            print("Failed to send timestamp. Ensure that web server is running and try again.")
+
+
+    def send_event(self, HEvent: HEvent, room: str = None):
         
-        event = HeucodEvent(event_type      = event,
-                            event_type_enum = event.value,
+        event = HeucodEvent(event_type      = HEvent,
+                            event_type_enum = HEvent.value,
                             location        = room,
                             timestamp       = time())
         
         
-        console_message = f" \nSending '{event.event_type.name}' event"
-        if(event.location): 
-            console_message += f" with location '{event.location}'"
+        console_message = f"  Sending '{HEvent.name}' event"
+        if(room): 
+            console_message += f" with location '{room}'"
         console_message += f" to server."
         print(console_message)
 

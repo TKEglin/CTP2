@@ -95,7 +95,7 @@
                     <div class="bg-white tm-block h-100">
                         <h2 class="tm-block-title">Time unwatched:</h2>
                             <?php
-                                echo "<h2 style=\"color: ", $systemdata["statuscolor"], ";text-align:center\">", "00:00", "</h2>"
+                                echo "<h2 style=\"color: ", $systemdata["statuscolor"], ";text-align:center\">", date('H:i:s', $systemdata["unwatchedtime"]), "</h2>"
                             ?>
                     </div>
                 </div>
