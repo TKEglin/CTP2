@@ -200,5 +200,4 @@ class FW_controller():
                         if(self.devices_in_use.__len__() == 0):
                             self.web_client.send_event(HEvent.NoDevicesInUse)
                             
-                            
             sleep(0.5)
