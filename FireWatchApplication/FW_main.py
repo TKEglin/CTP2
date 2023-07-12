@@ -15,8 +15,8 @@ def start_controller(HOST:str, PORT: str, restart: bool):
     exit_value = controller.run_controller(restart)
     if(exit_value == 1):
         print("\n !!Time limit exceeded, controller shut down!!")
-        print(  "   Input 'restart' to restart the controller"  )
-    
+        
+    print("Input 'restart' to restart the controller"  )
 
 
 def run_firewatch():

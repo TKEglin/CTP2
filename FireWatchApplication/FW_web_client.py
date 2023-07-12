@@ -19,14 +19,17 @@ class FW_TCP_client:
         print(f" Host: {self.HOST}")
         print(f" Port: {self.PORT}\n")
 
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as TCPsocket:
-            TCPsocket.connect((self.HOST, self.PORT))
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as TCPsocket:
+                TCPsocket.connect((self.HOST, self.PORT))
 
-            TCPsocket.send(pickle.dumps("send_device_data"))
-            
-            device_rows = pickle.loads(TCPsocket.recv(16384))
+                TCPsocket.send(pickle.dumps("send_device_data"))
+                
+                device_rows = pickle.loads(TCPsocket.recv(16384))
 
-            devices = MQTT_device.fromSQL(device_rows)
+                devices = MQTT_device.fromSQL(device_rows)
+        except:
+            print("Failed to retrieve device data. Ensure that web server is running and try again.")
             
         return devices
 
@@ -49,6 +52,6 @@ class FW_TCP_client:
                 TCPsocket.connect((self.HOST, self.PORT))
 
                 TCPsocket.send(pickle.dumps(event))
-        except:
-            print("Failed to send event. Web server might be down.")
+        except BaseException as ex:
+            print("Failed to send event. Exception: " + ex)
 
