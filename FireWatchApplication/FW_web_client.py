@@ -35,8 +35,9 @@ class FW_TCP_client:
     
     
     def send_unwatched_timestamp(self, timestamp: int):
+        """Sends the timestamp to the server. A value of -1 indicates no unwatched devices."""
 
-        print("Sending unwatched timestamp to server.")
+        print(f"Sending unwatched timestamp '{timestamp}' to server.")
 
         try:
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as TCPsocket:
