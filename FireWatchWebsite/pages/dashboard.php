@@ -95,7 +95,13 @@
                     <div class="bg-white tm-block h-100">
                         <h2 class="tm-block-title">Time unwatched:</h2>
                             <?php
-                                echo "<h2 style=\"color: ", $systemdata["statuscolor"], ";text-align:center\">", date('H:i:s', $systemdata["unwatchedtime"]), "</h2>"
+                                $unwatchedtime = $systemdata["unwatchedtimestamp"];
+                                if($unwatchedtime == -1) {
+                                    echo "<h2 style=\"color: ", $systemdata["statuscolor"], ";text-align:center\"> </h2>";
+                                }
+                                else {                                                                              // subtracting an hour to counteract timezone
+                                    echo "<h2 style=\"color: ", $systemdata["statuscolor"], ";text-align:center\">", date('H:i:s', time() - $unwatchedtime - 3600), "</h2>";
+                                }
                             ?>
                     </div>
                 </div>

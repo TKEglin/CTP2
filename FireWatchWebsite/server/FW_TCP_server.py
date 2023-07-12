@@ -79,10 +79,9 @@ def connection_handler(connection: socket.socket, address):
 
                 connection.send(pickle.dumps(device_rows))
             case "longest_unwatched_timestamp":
-                timestamp = message_components[1]
-                query = (f"UPDATE systemdata SET unwatchedtimestamp = \"{timestamp}\" LIMIT 1")
-                cursor.execute(query)
-                print(f"  Inserted timestamp into systemdata.")
+                timestamp = int(message_components[1])
+                update_db_timestamp(cursor, timestamp)
+                database_connection.commit()
     else:  
         # Else, message is event
         event: HeucodEvent
@@ -106,9 +105,11 @@ def connection_handler(connection: socket.socket, address):
                   HEvent.NoDevicesInUse.value):
                 status = "System running | No devices in use"
                 statuscolor = "teal"
+                update_db_timestamp(cursor, -1)
             case HEvent.AllDevicesWatched.value:
                 status = "System running | All devices watched"
                 statuscolor = "green"
+                update_db_timestamp(cursor, -1)
             case HEvent.UnwatchedDevice.value:
                 status = "System running | Device(s) unwatched"
                 statuscolor = "orange"
@@ -132,6 +133,13 @@ def connection_handler(connection: socket.socket, address):
     connection.close()
     print(    f"  Disconnected from client ({address[0]}:{address[1]})")
 
+
+def update_db_timestamp(cursor, timestamp: int):
+        """Adds the timestamp to the unwatchedtimestamp field of the systemdata table"""
+        query = (f"UPDATE systemdata SET unwatchedtimestamp = \"{timestamp}\" LIMIT 1")
+        cursor.execute(query)
+        print(f"  Inserted timestamp '{timestamp}' into systemdata.")
+    
     
 
 if __name__ == '__main__':
