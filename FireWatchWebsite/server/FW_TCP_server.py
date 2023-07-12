@@ -79,7 +79,8 @@ def connection_handler(connection: socket.socket, address):
 
                 connection.send(pickle.dumps(device_rows))
             case "longest_unwatched_timestamp":
-                query = (f"INSERT INTO systemdata (unwatchedtime) VALUES ('{message_components[1]}')")
+                timestamp = message_components[1]
+                query = (f"UPDATE systemdata SET unwatchedtimestamp = \"{timestamp}\" LIMIT 1")
                 cursor.execute(query)
                 print(f"  Inserted timestamp into systemdata.")
     else:  
@@ -118,8 +119,7 @@ def connection_handler(connection: socket.socket, address):
                 status_changed = False
             
         if(status_changed):
-            cursor.execute("truncate systemdata")
-            query = (f"INSERT INTO systemdata(status, statuscolor) VALUES ( '{status}', '{statuscolor}' )")
+            query = (f"UPDATE systemdata SET status = \"{status}\", statuscolor = \"{statuscolor}\" LIMIT 1")
             cursor.execute(query)
             print(f"  Updated system status to \"{status}\".")
 
