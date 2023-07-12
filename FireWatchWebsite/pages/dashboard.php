@@ -108,16 +108,14 @@
                                     echo date('H:i:s', $adjusted_timestamp), "</h2>";
                                 }
                                 echo "<script>
-                                        let timestamp = Math.floor(Date.now() - ", $unwatchedtimestamp, "*1000) - 3600000;
                                         var interval = setInterval(function() {
+                                            let timestamp = Math.floor(Date.now() - ", $unwatchedtimestamp, "*1000) - 3600000;
                                             const date = new Date(timestamp);
                                             let time_formatted =  ('0' + date.getHours()).slice(-2) + \":\" 
                                                                 + ('0' + date.getMinutes()).slice(-2) + \":\" 
                                                                 + ('0' + date.getSeconds()).slice(-2);
 
                                             document.getElementById(\"unwatched_timer\").innerHTML = time_formatted;
-
-                                            timestamp += 1000
                                         }, 1000)
                                     </script>";
                             ?>
