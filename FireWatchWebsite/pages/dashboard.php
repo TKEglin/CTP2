@@ -19,7 +19,7 @@
 
     # Refresh Variables
     $page = $_SERVER['PHP_SELF'];
-    $updaterate = "30";
+    $updaterate = "15";
 
     # Timezone
     date_default_timezone_set('Europe/Copenhagen');
@@ -95,14 +95,39 @@
                     <div class="bg-white tm-block h-100">
                         <h2 class="tm-block-title">Time unwatched:</h2>
                             <?php
-                                $unwatchedtime = $systemdata["unwatchedtimestamp"];
-                                if($unwatchedtime == -1) {
-                                    echo "<h2 style=\"color: ", $systemdata["statuscolor"], ";text-align:center\"> </h2>";
+                                $unwatchedtimestamp = $systemdata["unwatchedtimestamp"];
+                                $adjusted_timestamp = time() - $unwatchedtimestamp - 3600;
+                                if($unwatchedtimestamp === "TEMP") {
+                                    echo "<h2 style=\"color:", $systemdata["statuscolor"], ";text-align:center\"> </h2>";
                                 }
                                 else {                                                                              // subtracting an hour to counteract timezone
-                                    echo "<h2 style=\"color: ", $systemdata["statuscolor"], ";text-align:center\">", date('H:i:s', time() - $unwatchedtime - 3600), "</h2>";
+                                    echo "<h2 id=\"unwatched_timer\" style=\"color: ", $systemdata["statuscolor"], ";text-align:center\">";
+                                        if($adjusted_timestamp > 3600) {
+                                            echo date('H', $adjusted_timestamp), ":";
+                                        }
+                                    echo date('H:i:s', $adjusted_timestamp), "</h2>";
                                 }
+                                echo "<script>
+                                        let timestamp = Math.floor(Date.now() - ", $unwatchedtimestamp, "*1000) - 3600000;
+                                        var interval = setInterval(function() {
+                                            const date = new Date(timestamp);
+                                            let time_formatted =  ('0' + date.getHours()).slice(-2) + \":\" 
+                                                                + ('0' + date.getMinutes()).slice(-2) + \":\" 
+                                                                + ('0' + date.getSeconds()).slice(-2);
+
+                                            document.getElementById(\"unwatched_timer\").innerHTML = time_formatted;
+
+                                            timestamp += 1000
+                                        }, 1000)
+                                    </script>";
                             ?>
+                            <script>
+                                const date = new Date()
+                                
+                                //alert(date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds())
+                                if()
+
+                            </script>
                     </div>
                 </div>
 
@@ -132,12 +157,11 @@
                                             else{
                                                 echo "<td class=\"text-center\">", $event["Location"], "</td>";
                                             }
-                                            echo "<td id=\"unwatched_timer\"></td>";
+                                            echo "<td>", date('H:i:s', $event["Timestamp"]), " - ", date('d/m/Y', $event["Timestamp"]), "</td>";
                                             echo "</tr>";
                                         }
                                     } 
                                     ?>
-                                    <script  src = "../scripts/timer_script.js">
                                 </tbody>
                             </table>
                         </div>
