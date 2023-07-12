@@ -19,5 +19,5 @@ SendPowerEvent("Kitchen", "17", "0")
 
 SendOccupancyEvent("Kitchen", "18", "True")
 
-SendOccupancyEvent("Living Room", "20", "True")
-SendOccupancyEvent("Bathroom", "21", "False")
+SendOccupancyEvent("Living Room", "20", "False")
+SendOccupancyEvent("Bathroom", "21", "True")

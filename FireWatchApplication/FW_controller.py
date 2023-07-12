@@ -86,10 +86,14 @@ class FW_controller():
         # Main control loop
         while True:
             # Checking if longest unwatched has changed and web server timestamp needs to be updated
+            #   This method relies on the fact that the first element of the unwatched_devices list
+            #   will have been in there the longest, and thus have the longest unwatched time.
             if(self.unwatched_devices and 
                self.unwatched_devices[0].uid != self.longest_unwatched_uid):
                 self.longest_unwatched_uid = self.unwatched_devices[0].uid
                 self.web_client.send_unwatched_timestamp(int(self.unwatched_devices[0].unwatched_start_time))
+            elif(not self.unwatched_devices): # if list is empty, reset unwatched UID
+                self.longest_unwatched_uid = -1
                 
             # Checking for time exceeded on at least one unwatched device
             time_exceeded = False
@@ -150,8 +154,7 @@ class FW_controller():
                                 self.unwatched_devices.remove(watched_device)
                             # If this was the last unwatched device and there are items in use, send event to server
                             if(self.unwatched_devices.__len__() == 0 and self.devices_in_use.__len__() > 0):
-                                self.web_client.send_event(HEvent.AllDevicesWatched) 
-                                self.longest_unwatched_uid = -1 
+                                self.web_client.send_event(HEvent.AllDevicesWatched)
                             
                     # If no occupant detected and room was previously occupied
                     elif(state == "False" and room.occupied):
@@ -201,7 +204,6 @@ class FW_controller():
                         
                         if(self.unwatched_devices.__contains__(device)):
                             self.unwatched_devices.remove(device)
-                        self.longest_unwatched_uid = -1
                         self.devices_in_use.remove(device)
                         if(self.devices_in_use.__len__() == 0):
                             self.web_client.send_event(HEvent.NoDevicesInUse)
