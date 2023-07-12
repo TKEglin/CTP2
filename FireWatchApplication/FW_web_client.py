@@ -2,7 +2,9 @@ import socket
 import pickle
 from typing import Dict
 from heucod import HeucodEvent
+from heucod import HeucodEventType as HEvent
 from FW_datatypes import MQTT_device
+from time import time
 
 class FW_TCP_client:
     def __init__(self, HOST: str, PORT: int):
@@ -28,15 +30,19 @@ class FW_TCP_client:
             
         return devices
 
-    def send_event(self, event: HeucodEvent):
+    def send_event(self, event: HEvent, room: str = None):
+        
+        event = HeucodEvent(event_type      = event,
+                            event_type_enum = event.value,
+                            location        = room,
+                            timestamp       = time())
+        
         
         console_message = f" \nSending '{event.event_type.name}' event"
         if(event.location): 
             console_message += f" with location '{event.location}'"
         console_message += f" to server."
         print(console_message)
-        print(f" Host: {self.HOST}")
-        print(f" Port: {self.PORT}\n")
 
         try:
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as TCPsocket:

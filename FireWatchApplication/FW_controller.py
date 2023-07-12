@@ -2,6 +2,7 @@ from queue import Queue
 from time import sleep, time
 from typing import List, Dict, Tuple
 import json
+from itertools import chain
 
 from heucod import HeucodEvent
 from heucod import HeucodEventType as HEvent
@@ -68,28 +69,19 @@ class FW_controller():
 
         # Subscribing to topics and starting listener
         print("Controller starting listener")
-        for device in self.sensor_devices:
-            device: MQTT_device
-            topic = device.generate_subscription_topic()
-            self.device_handler.subscribe(topic)
-        for device in self.watched_devices:
+        for device in chain(self.sensor_devices, self.watched_devices):
             device: MQTT_device
             topic = device.generate_subscription_topic()
             self.device_handler.subscribe(topic)
 
         self.device_handler.start_listener()
         
-        print("\n")
 
         # Sending startup event to web server
         if(restart):
-            self.web_client.send_event(HeucodEvent(event_type = HEvent.SystemRestart,
-                                                    event_type_enum = HEvent.SystemRestart.value,
-                                                    timestamp = time()))
+            self.web_client.send_event(HEvent.SystemRestart)
         else:
-            self.web_client.send_event(HeucodEvent(event_type = HEvent.SystemOn,
-                                                    event_type_enum = HEvent.SystemOn.value,
-                                                    timestamp = time()))
+            self.web_client.send_event(HEvent.SystemOn)
 
         # Main control loop
         while True:
@@ -104,25 +96,17 @@ class FW_controller():
                     
             if(time_exceeded):
                 print("Unwatched safe time limit exceeded!")
-                self.web_client.send_event(HeucodEvent(event_type = HEvent.TimelimitExceeded,
-                                                        event_type_enum = HEvent.TimelimitExceeded.value,
-                                                        timestamp = time()))
+                self.web_client.send_event(HEvent.TimelimitExceeded)
                 
                 for room in self.occupied_rooms.values():
                     for device in room.warning_devices:
-                        self.web_client.send_event(HeucodEvent(event_type = HEvent.TurningOnWarningLight,
-                                                                event_type_enum = HEvent.TurningOnWarningLight.value,
-                                                                location = device.room,
-                                                                timestamp = time()))
+                        self.web_client.send_event(HEvent.TurningOnWarningLight, device.room)
                     # Publishing turn on message for device
                     message = "{\"" + device.type.actuator_value_name + "\": \"" + device.type.actuator_enable + "\"}" 
                     self.device_handler.publish(device.generate_publish_topic(), message)
                 
                 for device in self.watched_devices:
-                    self.web_client.send_event(HeucodEvent(event_type = HEvent.CuttingPowerToDevice,
-                                                            event_type_enum = HEvent.CuttingPowerToDevice.value,
-                                                            location = device.room,
-                                                            timestamp = time()))
+                    self.web_client.send_event(HEvent.CuttingPowerToDevice, device.room)
                     # Publishing cut power message for device
                     message = "{\"" + device.type.actuator_value_name + "\": \"" + device.type.actuator_disable + "\"}" 
                     self.device_handler.publish(device.generate_publish_topic(), message)
@@ -143,107 +127,78 @@ class FW_controller():
                 print(f"Received payload: {message.payload} | Room: {device.room} | UID: {device.uid}")
                 
                 if(device.function == "Presence Sensor"):
-                    if(state == "True"):
-                        # Only processing if old occupied state was different
-                        if(not room.occupied):
-                            # Adding room to occupied rooms
-                            self.occupied_rooms[room.name] = room
-                            # updating unwatched flag of all watched devices in room 
-                            for watched_device in room.watched_devices:
-                                watched_device.unwatched = False
-                                if(self.unwatched_devices.__contains__(watched_device)):
-                                    self.unwatched_devices.remove(watched_device)
-                                # If this was the last unwatched device and there are items in use, send event to server
-                                if(self.unwatched_devices.__len__() == 0 and self.devices_in_use.__len__() > 0):
-                                    self.web_client.send_event(HeucodEvent(event_type = HEvent.AllDevicesWatched,
-                                                                            event_type_enum = HEvent.AllDevicesWatched.value,
-                                                                            timestamp = time()))  
-   
-                            room.occupied = True
-                            print(f"    Room {device.room} now occupied.")
-                            if(room.watched_device == True):
-                                 self.web_client.send_event(HeucodEvent(event_type = HEvent.WatcherDetected,
-                                                                        event_type_enum = HEvent.WatcherDetected.value,
-                                                                        location = device.room,
-                                                                        timestamp = time()))                               
-                            else:
-                                self.web_client.send_event(HeucodEvent(event_type = HEvent.OccupantDetected,
-                                                                        event_type_enum = HEvent.OccupantDetected.value,
-                                                                        location = device.room,
-                                                                        timestamp = time()))
+                    # If occupant detected and room was not already occupied
+                    if(state == "True" and not room.occupied):
+                        # Adding room to occupied rooms
+                        self.occupied_rooms[room.name] = room
+                        room.occupied = True
+                        print(f"    Room '{device.room}' now occupied.")
+                        if(room.watched_device == True):
+                            self.web_client.send_event(HEvent.WatcherDetected, device.room)                               
+                        else:
+                            self.web_client.send_event(HEvent.OccupantDetected, device.room)
                             
-                    elif(state == "False"):
-                        # Only processing if old occupied state was different
-                        if(room.occupied):
-                            # Updating unwatched flag of all watched devices in room 
-                            for w_device in room.watched_devices:
-                                if(w_device.in_use):
-                                    w_device.unwatched_start_time = time()
-                                    w_device.unwatched = True
-                                    self.unwatched_devices.append(w_device)
-                                    self.web_client.send_event(HeucodEvent(event_type = HEvent.UnwatchedDevice,
-                                                                            event_type_enum = HEvent.UnwatchedDevice.value,
-                                                                            location = device.room,
-                                                                            timestamp = time()))
-                                    
-                            if(device.room in list(self.devices.keys())):
-                                self.occupied_rooms.pop(device.room)
+                        # updating unwatched flag of all watched devices in room 
+                        for watched_device in room.watched_devices:
+                            watched_device.unwatched = False
+                            if(self.unwatched_devices.__contains__(watched_device)):
+                                self.unwatched_devices.remove(watched_device)
+                            # If this was the last unwatched device and there are items in use, send event to server
+                            if(self.unwatched_devices.__len__() == 0 and self.devices_in_use.__len__() > 0):
+                                self.web_client.send_event(HEvent.AllDevicesWatched)  
+                            
+                    # If no occupant detected and room was previously occupied
+                    elif(state == "False" and room.occupied):
+                        room.occupied = False
+                        print(f"    Room '{device.room}' no longer occupied.")
+                        if(room.watched_device == True):
+                            self.web_client.send_event(HEvent.WatcherLeftRoom, device.room)                               
+                        else:
+                            self.web_client.send_event(HEvent.OccupantLeftRoom, device.room)
+                            
+                        # Updating unwatched flag of all watched devices in room 
+                        for w_device in room.watched_devices:
+                            if(w_device.in_use):
+                                w_device.unwatched_start_time = time()
+                                w_device.unwatched = True
+                                self.unwatched_devices.append(w_device)
+                                self.web_client.send_event(HEvent.UnwatchedDevice, device.room)
                                 
-                            room.occupied = False
-                            print(f"    Room {device.room} no longer occupied.")
-                            if(room.watched_device == True):
-                                 self.web_client.send_event(HeucodEvent(event_type = HEvent.WatcherLeftRoom,
-                                                                        event_type_enum = HEvent.WatcherLeftRoom.value,
-                                                                        location = device.room,
-                                                                        timestamp = time()))                               
-                            else:
-                                self.web_client.send_event(HeucodEvent(event_type = HEvent.OccupantLeftRoom,
-                                                                        event_type_enum = HEvent.OccupantLeftRoom.value,
-                                                                        location = device.room,
-                                                                        timestamp = time()))
+                        if(device.room in list(self.devices.keys())):
+                            self.occupied_rooms.pop(device.room)
+                            
                         
                         
                 elif(device.function == "Power Plug"):
-                    # if power above threshold:
-                    if(int(state) >= device.type.sensor_threshold):
-                        # Checking state first to avoid continuous updates of device
-                        if(not device.in_use):
-                            self.devices_in_use.append(device)
-                            # If the room of the device is unoccupied, the device is unwatched
-                            if(not self.rooms[device.room].occupied):
-                                print(f"    Room {device.room} not occupied when device activated.")
-                                device.unwatched = True
-                                device.unwatched_start_time = time()
-                                self.unwatched_devices.append(device)
-                                self.web_client.send_event(HeucodEvent(event_type = HEvent.UnwatchedDevice,
-                                                                        event_type_enum = HEvent.UnwatchedDevice.value,
-                                                                        location = device.room,
-                                                                        timestamp = time()))
-                            # If the newly activated device is the only device in use, inform server so status can be updated
-                            elif(self.devices_in_use.__len__() == 1):
-                                self.web_client.send_event(HeucodEvent(event_type = HEvent.AllDevicesWatched,
-                                                                        event_type_enum = HEvent.AllDevicesWatched.value,
-                                                                        timestamp = time()))
-                            device.in_use = True
-                            print(f"    Device with name {device.name} in room {device.room} now in use.")
-                            self.web_client.send_event(HeucodEvent(event_type = HEvent.WatchedDeviceActivated,
-                                                                    event_type_enum = HEvent.WatchedDeviceActivated.value,
-                                                                    location = device.room,
-                                                                    timestamp = time()))
-                    # if power below threshold:
-                    else: 
-                        if(device.in_use):
-                            self.devices_in_use.remove(device)
-                            if(self.devices_in_use.__len__() == 0):
-                                self.web_client.send_event(HeucodEvent(event_type = HEvent.NoDevicesInUse,
-                                                                        event_type_enum = HEvent.NoDevicesInUse.value,
-                                                                        timestamp = time()))
-                                
-                            device.in_use = False
-                            print(f"    Device with name {device.name} in room {device.room} no longer in use.")
-                            self.web_client.send_event(HeucodEvent(event_type = HEvent.WatchedDeviceShutdown,
-                                                                    event_type_enum = HEvent.WatchedDeviceShutdown.value,
-                                                                    location = device.room,
-                                                                    timestamp = time()))
+                    # if power above threshold and device was not in use
+                    if(int(state) >= device.type.sensor_threshold and not device.in_use):
+                        device.in_use = True
+                        print(f"    Device with name '{device.name}' in room '{device.room}' now in use.")
+                        self.web_client.send_event(HEvent.WatchedDeviceActivated, device.room)
+                        
+                        self.devices_in_use.append(device)
+                        # If the room of the device is unoccupied, the device is unwatched
+                        if(not self.rooms[device.room].occupied):
+                            print(f"    Room '{device.room}' was not occupied when watched device activated.")
+                            device.unwatched = True
+                            device.unwatched_start_time = time()
+                            self.unwatched_devices.append(device)
+                            self.web_client.send_event(HEvent.UnwatchedDevice, device.room)
+                        # If the newly activated and watched device is the only device in use
+                        elif(self.devices_in_use.__len__() == 1):
+                            self.web_client.send_event(HEvent.AllDevicesWatched)
                             
-            sleep(0.1)
+                        
+                    # else if power below threshold and device was in use
+                    elif(int(state) < device.type.sensor_threshold and device.in_use):
+                        device.in_use = False
+                        print(f"    Device with name '{device.name}' in room '{device.room}' no longer in use.")
+                        self.web_client.send_event(HEvent.WatchedDeviceShutdown, device.room)
+                        
+                        self.unwatched_devices.remove(device)
+                        self.devices_in_use.remove(device)
+                        if(self.devices_in_use.__len__() == 0):
+                            self.web_client.send_event(HEvent.NoDevicesInUse)
+                            
+                            
+            sleep(0.5)

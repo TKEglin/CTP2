@@ -41,9 +41,7 @@ def run_firewatch():
     while True:
         user_input = input()
         if(user_input in ('exit', 'EXIT')):
-            client.send_event(HeucodEvent(event_type      = HEvent.SystemOff,
-                                          event_type_enum = HEvent.SystemOff.value,
-                                          timestamp       = time()))
+            client.send_event(HEvent.SystemOff)
             print("\nFirewatch shutting down")
             sys.exit(0)
             

@@ -96,10 +96,10 @@ def connection_handler(connection: socket.socket, address):
                     status = "System running | No devices in use"
                     statuscolor = "teal"
                 case HEvent.AllDevicesWatched.value:
-                    status = "System running | Device in use"
+                    status = "System running | All devices watched"
                     statuscolor = "green"
                 case HEvent.UnwatchedDevice.value:
-                    status = "System running | Device unwatched"
+                    status = "System running | Device(s) unwatched"
                     statuscolor = "orange"
                 case HEvent.TimelimitExceeded.value:
                     status = "Time Exceeded | All devices shutdown"
