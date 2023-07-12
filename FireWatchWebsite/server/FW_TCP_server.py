@@ -1,13 +1,13 @@
 import socket
 import sys
 from threading import Thread
-from heucod import HeucodEvent
-from heucod import HeucodEventType as HEvent
 import mysql.connector
 import pickle
 
-# Used to handle status display
-UnwatchedDevice = False
+from heucod import HeucodEvent
+from heucod import HeucodEventType as HEvent
+from FW_datatypes import MQTT_device_type
+
 
 def run_server():
     hostname = socket.gethostname()
@@ -18,6 +18,10 @@ def run_server():
     print(f"    Hostname: {hostname}")
     print(f"    Host:     {HOST}")
     print(f"    Port:     {PORT}")
+    
+    print( "  Initializing datebase...")
+    initialize_database()
+    
     print( "  Connecting to socket...")
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as TCPsocket:
@@ -139,8 +143,119 @@ def update_db_timestamp(cursor, timestamp: int):
         query = (f"UPDATE systemdata SET unwatchedtimestamp = \"{timestamp}\" LIMIT 1")
         cursor.execute(query)
         print(f"  Inserted timestamp '{timestamp}' into systemdata.")
+        
+    
+        
+        
+def initialize_database():
+    db_connection = mysql.connector.connect(
+        host = "127.0.0.1",
+        user = "root",
+        password = "grp4",
+        database = "firewatchdata"
+    )
+    cursor = db_connection.cursor(buffered = True)
+    
+    # System data
+    cursor.execute("CREATE TABLE IF NOT EXISTS systemdata (" +
+                    "status VARCHAR(255) NOT NULL, " +
+                    "statuscolor VARCHAR(255) NOT NULL, " +
+                    "unwatchedtimestamp INT)")
+    
+    # If systemdata has an entry, the database is initialized and function can return
+    cursor.execute("SELECT * FROM systemdata LIMIT 1")
+    systemdata_row = cursor.fetchall()
+    if(systemdata_row):
+        print("  Database was already initialized.")
+        return
+    # Else, continue initialization:
+    
+    #   Adding default systemdata
+    cursor.execute("INSERT INTO systemdata " +
+                    "(status, statuscolor, unwatchedtimestamp) " +
+                    "VALUES " +
+                    "('System not running', 'gray', -1)")
+    
+    # User data
+    cursor.execute("CREATE TABLE IF NOT EXISTS userdata (" +
+                    "username VARCHAR(255) NOT NULL, " +
+                    "password VARCHAR(255) NOT NULL)")
+    #   Adding default userdata
+    cursor.execute("INSERT INTO userdata " +
+                    "(username, password) " +
+                    "VALUES " +
+                    "('admin', 'admin')")
+        
+    # Event data
+    cursor.execute("CREATE TABLE IF NOT EXISTS eventdata (" +
+                    "ID INT NOT NULL, " +
+                    "Type VARCHAR(255) NOT NULL, " +
+                    "Location VARCHAR(255) NOT NULL, " +
+                    "Timestamp INT NOT NULL)")
+    
+    # Device data
+    cursor.execute("CREATE TABLE IF NOT EXISTS devicedata (" +
+                    "uid INT AUTO_INCREMENT PRIMARY KEY, " +
+                    "name VARCHAR(255) NOT NULL, " +
+                    "type VARCHAR(255) NOT NULL, " +
+                    "room VARCHAR(255) NOT NULL, " +
+                    "device_JSON TEXT NOT NULL)")
+    
+    # Supported devices
+    cursor.execute("CREATE TABLE IF NOT EXISTS supporteddevices (" +
+                    "uid INT AUTO_INCREMENT PRIMARY KEY, " +
+                    "name VARCHAR(255) NOT NULL, " +
+                    "`function` VARCHAR(255) NOT NULL, " +
+                    "device_JSON TEXT NOT NULL)")
+    #   Adding supported devices
+    #       Immax NEO 07048L
+    device_JSON = MQTT_device_type(
+                    brand_name          = "Immax NEO 07048L power unit",
+                    general_topic       = "Zigbee2mqtt",
+                    device_function     = "Power Plug",
+                    actuator_topic      = "set",
+                    actuator_value_name = "state",
+                    actuator_enable     = "ON",
+                    actuator_disable    = "OFF",
+                    sensor_topic        = "",
+                    sensor_value_name   = "power",
+                    sensor_threshold    = 10 # In_use/not in_use threshold
+                    ).toJSON()
+    cursor.execute("INSERT INTO supporteddevices " +
+                    "(name, `function`, device_JSON) " +
+                    "VALUES " +
+                    "('Immax NEO 07048L', 'Power Plug', '" + device_JSON + "')")
+    #       GLEDOPTO GL-MC-001PK
+    device_JSON = MQTT_device_type(
+                    brand_name          = "GLEDOPTO GL-MC-001PK",
+                    general_topic       = "Zigbee2mqtt",
+                    device_function     = "Warning Device",
+                    actuator_topic      = "set",
+                    actuator_value_name = "state",
+                    actuator_enable     = "ON",
+                    actuator_disable    = "OFF",
+                ).toJSON()
+    cursor.execute("INSERT INTO supporteddevices " +
+                    "(name, `function`, device_JSON) " +
+                    "VALUES " +
+                    "('GLEDOPTO GL-MC-001PK', 'Warning Device', '" + device_JSON + "')")
+    #       IKEA_E1525_E1745
+    device_JSON = MQTT_device_type(
+                    brand_name        = "IKEA E1525/E1745",
+                    general_topic     = "Zigbee2mqtt",
+                    device_function   = "Presence Sensor",
+                    sensor_topic      = "",
+                    sensor_value_name = "occupancy",
+                ).toJSON()
+    cursor.execute("INSERT INTO supporteddevices " +
+                    "(name, `function`, device_JSON) " +
+                    "VALUES " +
+                    "('IKEA_E1525_E1745', 'Presence Sensor', '" + device_JSON + "')")
+    
+    db_connection.commit()
+    print("  Database initialized.")
     
     
-
+    
 if __name__ == '__main__':
     run_server()

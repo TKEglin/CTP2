@@ -97,14 +97,11 @@
                             <?php
                                 $unwatchedtimestamp = $systemdata["unwatchedtimestamp"];
                                 $adjusted_timestamp = time() - $unwatchedtimestamp - 3600;
-                                if($unwatchedtimestamp === "TEMP") {
+                                if($unwatchedtimestamp == -1) {
                                     echo "<h2 style=\"color:", $systemdata["statuscolor"], ";text-align:center\"> </h2>";
                                 }
                                 else {                                                                              // subtracting an hour to counteract timezone
                                     echo "<h2 id=\"unwatched_timer\" style=\"color: ", $systemdata["statuscolor"], ";text-align:center\">";
-                                        if($adjusted_timestamp > 3600) {
-                                            echo date('H', $adjusted_timestamp), ":";
-                                        }
                                     echo date('H:i:s', $adjusted_timestamp), "</h2>";
                                 }
                                 echo "<script>

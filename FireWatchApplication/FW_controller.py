@@ -140,6 +140,7 @@ class FW_controller():
                         self.occupied_rooms[room.name] = room
                         room.occupied = True
                         print(f"    Room '{device.room}' now occupied.")
+                        # If room has a watched device, watcher event is sent instead of occupant event
                         if(room.watched_device == True):
                             self.web_client.send_event(HEvent.WatcherDetected, device.room)                               
                         else:
@@ -171,7 +172,7 @@ class FW_controller():
                                 self.unwatched_devices.append(w_device)
                                 self.web_client.send_event(HEvent.UnwatchedDevice, device.room)
                                 
-                        if(device.room in list(self.devices.keys())):
+                        if(device.room in list(self.occupied_rooms.keys())):
                             self.occupied_rooms.pop(device.room)
                             
                         
