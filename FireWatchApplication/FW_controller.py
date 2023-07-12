@@ -12,7 +12,7 @@ from FW_MQTT_handler import FW_MQTT_handler
 from FW_datatypes import FW_Device_Message
 
 
-UNWATCHED_TIME_LIMIT = 30 # seconds
+UNWATCHED_TIME_LIMIT = 1200 # seconds
 
 class FW_controller():
     
@@ -35,8 +35,8 @@ class FW_controller():
         self.unwatched_devices: List[MQTT_device] = list()
         # List of watched devices that are using power
         self.devices_in_use: List[MQTT_device] = list()
-        # A tuple of the uid and unwatched timestamp of longest unwatched device. Used for in for on web page
-        self.longest_unwatched: Tuple[int, int]
+        # Used to see if the longest unwatched has changed, so new timestamp can be sent to server
+        self.longest_unwatched_uid = -1
 
         self.message_queue = Queue()
         self.device_handler = FW_MQTT_handler("127.0.0.1", 1883, self.message_queue)
@@ -75,7 +75,7 @@ class FW_controller():
             self.device_handler.subscribe(topic)
 
         self.device_handler.start_listener()
-        
+        print("")
 
         # Sending startup event to web server
         if(restart):
@@ -85,12 +85,17 @@ class FW_controller():
 
         # Main control loop
         while True:
+            # Checking if longest unwatched has changed and web server timestamp needs to be updated
+            if(self.unwatched_devices and 
+               self.unwatched_devices[0].uid != self.longest_unwatched_uid):
+                self.longest_unwatched_uid = self.unwatched_devices[0].uid
+                self.web_client.send_unwatched_timestamp(int(self.unwatched_devices[0].unwatched_start_time))
+                
             # Checking for time exceeded on at least one unwatched device
             time_exceeded = False
             for device in self.unwatched_devices:
                 device: MQTT_device
                 time_elapsed = time() - device.unwatched_start_time
-                # TO DO: IMPLEMENT TIME ELAPSED
                 if(time_elapsed > UNWATCHED_TIME_LIMIT):
                     time_exceeded = True
                     
@@ -145,7 +150,8 @@ class FW_controller():
                                 self.unwatched_devices.remove(watched_device)
                             # If this was the last unwatched device and there are items in use, send event to server
                             if(self.unwatched_devices.__len__() == 0 and self.devices_in_use.__len__() > 0):
-                                self.web_client.send_event(HEvent.AllDevicesWatched)  
+                                self.web_client.send_event(HEvent.AllDevicesWatched) 
+                                self.longest_unwatched_uid = -1 
                             
                     # If no occupant detected and room was previously occupied
                     elif(state == "False" and room.occupied):
@@ -159,15 +165,14 @@ class FW_controller():
                         # Updating unwatched flag of all watched devices in room 
                         for w_device in room.watched_devices:
                             if(w_device.in_use):
-                                w_device.unwatched_start_time = time()
                                 w_device.unwatched = True
+                                w_device.unwatched_start_time = time()
                                 self.unwatched_devices.append(w_device)
                                 self.web_client.send_event(HEvent.UnwatchedDevice, device.room)
                                 
                         if(device.room in list(self.devices.keys())):
                             self.occupied_rooms.pop(device.room)
                             
-                        
                         
                 elif(device.function == "Power Plug"):
                     # if power above threshold and device was not in use
@@ -188,14 +193,15 @@ class FW_controller():
                         elif(self.devices_in_use.__len__() == 1):
                             self.web_client.send_event(HEvent.AllDevicesWatched)
                             
-                        
                     # else if power below threshold and device was in use
                     elif(int(state) < device.type.sensor_threshold and device.in_use):
                         device.in_use = False
                         print(f"    Device with name '{device.name}' in room '{device.room}' no longer in use.")
                         self.web_client.send_event(HEvent.WatchedDeviceShutdown, device.room)
                         
-                        self.unwatched_devices.remove(device)
+                        if(self.unwatched_devices.__contains__(device)):
+                            self.unwatched_devices.remove(device)
+                        self.longest_unwatched_uid = -1
                         self.devices_in_use.remove(device)
                         if(self.devices_in_use.__len__() == 0):
                             self.web_client.send_event(HEvent.NoDevicesInUse)
