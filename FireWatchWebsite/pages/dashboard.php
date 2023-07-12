@@ -132,11 +132,12 @@
                                             else{
                                                 echo "<td class=\"text-center\">", $event["Location"], "</td>";
                                             }
-                                            echo "<td>", date('H:i:s', $event["Timestamp"]), " - ", date('d/m/Y', $event["Timestamp"]), "</td>";
+                                            echo "<td id=\"unwatched_timer\"></td>";
                                             echo "</tr>";
                                         }
                                     } 
                                     ?>
+                                    <script  src = "../scripts/timer_script.js">
                                 </tbody>
                             </table>
                         </div>

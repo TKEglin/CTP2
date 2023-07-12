@@ -1,5 +1,4 @@
 import paho.mqtt.client as mqtt
-from time import sleep
 
 
 def SendOccupancyEvent(room: str, id: str, state: str):

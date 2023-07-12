@@ -2,9 +2,7 @@ from FW_web_client import FW_TCP_client
 from FW_controller import FW_controller
 import sys
 from threading import Thread
-from heucod import HeucodEvent
 from heucod import HeucodEventType as HEvent
-from time import time
 
 
 def start_controller(HOST:str, PORT: str, restart: bool):

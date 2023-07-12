@@ -1,15 +1,13 @@
 from queue import Queue
 from time import sleep, time
-from typing import List, Dict, Tuple
+from typing import List, Dict
 import json
 from itertools import chain
 
-from heucod import HeucodEvent
 from heucod import HeucodEventType as HEvent
-from FW_datatypes import MQTT_device, FW_room
+from FW_datatypes import MQTT_device, FW_room, FW_Device_Message
 from FW_web_client import FW_TCP_client
 from FW_MQTT_handler import FW_MQTT_handler
-from FW_datatypes import FW_Device_Message
 
 
 UNWATCHED_TIME_LIMIT = 1200 # seconds
@@ -27,7 +25,7 @@ class FW_controller():
         self.occupied_rooms: Dict[str, FW_room] = dict()
         # List watched devices
         self.watched_devices: List[MQTT_device] = list()
-        # List of warning devices
+        # List of warning devices.
         self.warning_devices: List[MQTT_device] = list()
         # List of sensor devices. Used to subscribe to topics
         self.sensor_devices:  List[MQTT_device] = list()
