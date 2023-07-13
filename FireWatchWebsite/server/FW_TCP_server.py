@@ -109,7 +109,7 @@ def connection_handler(connection: socket.socket, address):
                 statuscolor = "gray"
                 update_db_timestamp(cursor, -1)
                 reset_room_data(database_connection, cursor)
-            case (HEvent.SystemOn.value | 
+            case (HEvent.SystemOn.value      | 
                   HEvent.SystemRestart.value |
                   HEvent.NoDevicesInUse.value):
                 status = "System running | No devices in use"
@@ -164,7 +164,7 @@ def connection_handler(connection: socket.socket, address):
                             statuscolor = "teal"
                         else:
                             status = "Not occupied"
-                            statuscolor = None
+                            statuscolor = "gray"
                     else:
                         status_changed = False
                         
@@ -181,14 +181,14 @@ def connection_handler(connection: socket.socket, address):
                         statuscolor = "orange"
                     else:
                         status = "Not occupied"
-                        statuscolor = None
+                        statuscolor = "gray"
                         
                 case HEvent.OccupantDetected.value:
                     status = "Occupied"
                     statuscolor = "teal"
                 case HEvent.OccupantLeftRoom.value:
                     status = "Not occupied"
-                    statuscolor = None
+                    statuscolor = "gray"
                     
                 case HEvent.CuttingPowerToDevice.value:
                     status = "Shutdown"
@@ -203,7 +203,6 @@ def connection_handler(connection: socket.socket, address):
                 cursor.execute(query)
 
         database_connection.commit()
-
 
     cursor.close()
 
@@ -220,7 +219,7 @@ def update_db_timestamp(cursor, timestamp: int):
         
 def initialize_room_data(db_connection, cursor):
     """Sets all status fields to 'Not occupied' and all statuscolor fields to null"""
-    reset_room_data(db_connection=db_connection, cursor=cursor, status="Not Occupied")
+    reset_room_data(db_connection = db_connection, cursor = cursor, status="Not Occupied")
     
     
 def reset_room_data(db_connection = None, cursor = None, status = None):
