@@ -7,15 +7,21 @@
         exit();
     }
     
+    $name = $_POST["name"];
 
     include 'database_connection.php';
     $conn = OpenConnection();
 
-    $conn->query("truncate eventdata");
+    $query = "INSERT IGNORE INTO `roomdata` (`name`)
+              VALUES ('$name')";
+
+    echo $query;
+
+    $conn -> query(($query));
 
     CloseConnection($conn);
 
 
-    header("Location: ../pages/dashboard.php");
+    header("Location: ../pages/manage.php");
     exit();
 ?>

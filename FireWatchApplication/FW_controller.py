@@ -90,8 +90,8 @@ class FW_controller():
                self.unwatched_devices[0].uid != self.longest_unwatched_uid):
                 self.longest_unwatched_uid = self.unwatched_devices[0].uid
                 self.web_client.send_unwatched_timestamp(int(self.unwatched_devices[0].unwatched_start_time))
-            elif(not self.unwatched_devices): # if list is empty, reset unwatched UID
-                self.longest_unwatched_uid = -1
+            elif(not self.unwatched_devices):   # If list is empty, reset unwatched UID
+                self.longest_unwatched_uid = -1 
                 
             # Checking for time exceeded on at least one unwatched device
             time_exceeded = False
@@ -127,9 +127,9 @@ class FW_controller():
                 message = self.message_queue.get()
                 
                 json_object = json.loads(message.payload)
-                device: MQTT_device = self.devices[message.device_uid]
-                room  : FW_room     = self.rooms[device.room]
-                state : str         = json_object[device.type.sensor_value_name]
+                device : MQTT_device = self.devices[message.device_uid]
+                room   : FW_room     = self.rooms[device.room]
+                state  : str         = json_object[device.type.sensor_value_name]
                 
                 print(f"Received payload: {message.payload} | Room: {device.room} | UID: {device.uid}")
                 
@@ -140,6 +140,7 @@ class FW_controller():
                         self.occupied_rooms[room.name] = room
                         room.occupied = True
                         print(f"    Room '{device.room}' now occupied.")
+                        # If room has a watched device, watcher event is sent instead of occupant event
                         if(room.watched_device == True):
                             self.web_client.send_event(HEvent.WatcherDetected, device.room)                               
                         else:
@@ -171,7 +172,7 @@ class FW_controller():
                                 self.unwatched_devices.append(w_device)
                                 self.web_client.send_event(HEvent.UnwatchedDevice, device.room)
                                 
-                        if(device.room in list(self.devices.keys())):
+                        if(device.room in list(self.occupied_rooms.keys())):
                             self.occupied_rooms.pop(device.room)
                             
                         
@@ -206,4 +207,4 @@ class FW_controller():
                         if(self.devices_in_use.__len__() == 0):
                             self.web_client.send_event(HEvent.NoDevicesInUse)
                             
-            sleep(0.5)
+            sleep(0.1)

@@ -11,7 +11,8 @@
     include '../scripts/database_connection.php';
     $conn = OpenConnection();
 
-    $eventdata = $conn->query("SELECT * FROM eventdata ORDER BY Timestamp DESC");
+    $eventdata  = $conn->query("SELECT * FROM eventdata ORDER BY Timestamp DESC");
+    $roomdata   = $conn->query("SELECT * FROM roomdata ORDER BY NAME ASC");
     $systemdata = $conn->query("SELECT * FROM systemdata");
     $systemdata = $systemdata->fetch_assoc();
     
@@ -83,7 +84,7 @@
                 <div class="col-xl-8 col-lg-12 tm-md-12 tm-sm-12 tm-col">
                     <div class="bg-white tm-block h-100">
                         <div class="fw-row" >
-                            <h2 class="tm-block-title">System Status:</h2>
+                            <h2 class="tm-block-title">System Status</h2>
                             <?php
                                 echo "<h2 style=\"color: ", $systemdata["statuscolor"], ";text-align:center\">", $systemdata["status"], "</h2>"
                             ?>
@@ -93,18 +94,15 @@
 
                 <div class="col-xl-4 col-lg-12 tm-md-12 tm-sm-12 tm-col">
                     <div class="bg-white tm-block h-100">
-                        <h2 class="tm-block-title">Time unwatched:</h2>
+                        <h2 class="tm-block-title">Time unwatched</h2>
                             <?php
                                 $unwatchedtimestamp = $systemdata["unwatchedtimestamp"];
                                 $adjusted_timestamp = time() - $unwatchedtimestamp - 3600;
-                                if($unwatchedtimestamp === "TEMP") {
+                                if($unwatchedtimestamp == -1) {
                                     echo "<h2 style=\"color:", $systemdata["statuscolor"], ";text-align:center\"> </h2>";
                                 }
                                 else {                                                                              // subtracting an hour to counteract timezone
                                     echo "<h2 id=\"unwatched_timer\" style=\"color: ", $systemdata["statuscolor"], ";text-align:center\">";
-                                        if($adjusted_timestamp > 3600) {
-                                            echo date('H', $adjusted_timestamp), ":";
-                                        }
                                     echo date('H:i:s', $adjusted_timestamp), "</h2>";
                                 }
                                 echo "<script>
@@ -122,15 +120,14 @@
                     </div>
                 </div>
 
-                <div class="tm-col tm-col-full">
+                <div class="col-xl-8 col-lg-12 tm-md-12 tm-sm-12 tm-col">
                     <div class="bg-white tm-block h-100">
                         <h2 class="tm-block-title">Event History</h2>
-                        <div class="table-responsive" style="max-height:500px;overflow:auto;">
+                        <div class="table-responsive" style="max-height:800px;overflow:auto;">
                             <table class="table table-hover table-striped tm-table-striped-even mt-3 fw-table-scroll">
                                 <thead>
                                     <tr class="tm-bg-gray">
                                         <th scope="col">Event Type</th>
-                                        <th scope="col" class="text-center">Event ID</th>
                                         <th scope="col" class="text-center">Location</th>
                                         <th scope="col">Time</th>
                                     </tr>
@@ -141,7 +138,6 @@
                                         while($event = $eventdata->fetch_assoc()) {
                                             echo "<tr>";
                                             echo "<td class=\"tm-product-name\">", $event["Type"], "</td>";
-                                            echo "<td class=\"text-center\">", $event["ID"], "</td>";
                                             if($event["Location"] === "None"){
                                                 echo "<td class=\"text-center\"></td>";
                                             }
@@ -156,6 +152,7 @@
                                 </tbody>
                             </table>
                         </div>
+                        
 
                         <div class="tm-table-mt tm-table-actions-row">
                             <div class="tm-table-actions-col-left">
@@ -166,6 +163,32 @@
                                 </a>
                             </div>
                         </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-4 col-lg-12 tm-md-12 tm-sm-12 tm-col">
+                    <div class="bg-white tm-block h-100" style="max-height:800px;overflow:auto;">
+                        <h2 class="tm-block-title">Room status</h2>
+                        <?php 
+                        if ($roomdata->num_rows > 0) {
+                            while($room = $roomdata->fetch_assoc()) {
+                                echo "
+                                    <div class=\"tm-table-mt tm-table-actions-row\">
+                                        <div class=\"tm-table-actions-col-left\">
+                                            <h3 style=\"color:", $room["statuscolor"], ";text-align:center\">", $room["name"], "</h3>
+                                        </div>
+                                        <div class=\"tm-table-actions-col-right\">";
+                                if($room["status"] === "None"){
+                                    echo "<h3 style=\"color:", $room["statuscolor"], ";text-align:center\"></h3>";
+                                }
+                                else{
+                                    echo "<h3 style=\"color:", $room["statuscolor"], ";text-align:center\">", $room["status"], "</h3>";
+                                }
+                                echo "  </div>
+                                    </div>";
+                            }
+                        } 
+                        ?>
                     </div>
                 </div>
 

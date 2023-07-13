@@ -68,5 +68,5 @@ class FW_TCP_client:
 
                 TCPsocket.send(pickle.dumps(event))
         except BaseException as ex:
-            print("Failed to send event. Exception: " + ex)
+            print("Failed to send event. Exception: " + str(ex))
 

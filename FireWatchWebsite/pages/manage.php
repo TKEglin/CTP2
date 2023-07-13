@@ -7,13 +7,13 @@
         exit();
     }
 
-    # Getting event data
     include '../scripts/database_connection.php';
     $conn = OpenConnection();
 
-    $supporteddevices = $conn->query("SELECT * FROM supporteddevices");
-    $devicedata = $conn->query("SELECT * FROM devicedata");
-    
+    $supporteddevices = $conn->query("SELECT * FROM supporteddevices"            );
+    $roomdata         = $conn->query("SELECT * FROM roomdata"                    );
+    $devicedata       = $conn->query("SELECT * FROM devicedata ORDER BY room ASC");
+
     CloseConnection($conn);
 
     # Timezone
@@ -82,7 +82,7 @@
                                 <h2 class="tm-block-title d-inline-block">Devices</h2>
                             </div>
                         </div>
-                        <form action = "../scripts/remove_device.php" method ="POST">
+                        <form action = "../scripts/remove_device_data.php" method ="POST">
                         <div class="table-responsive" style="max-height:1000px;overflow:auto;">
                             <table class="table table-hover table-striped tm-table-striped-even mt-3">
                                 <thead>
@@ -99,15 +99,15 @@
                                         while($device = $devicedata->fetch_assoc()) {
                                             echo 
                                            "<tr>
-                                            <th scope=\"row\">
-                                                <input value=\"", $device["uid"], "\" 
-                                                       type=\"checkbox\"
-                                                       name=\"checkboxes[]\"
-                                                       aria-label=\"Checkbox\">
-                                            </th>
-                                            <td class=\"tm-product-name\">", $device["name"], "</td>
-                                            <td>", $device["room"], "</td>
-                                            <td>", $device["type"], "</td>
+                                                <th scope=\"row\">
+                                                    <input value=\"", $device["uid"], "\" 
+                                                        type=\"checkbox\"
+                                                        name=\"checkboxes[]\"
+                                                        aria-label=\"Checkbox\">
+                                                </th>
+                                                <td class=\"tm-product-name\">", $device["name"], "</td>
+                                                <td>", $device["room"], "</td>
+                                                <td>", $device["type"], "</td>
                                             </tr>";
                                         }
                                     }
@@ -117,11 +117,17 @@
                         </div>
                         <div class="tm-table-mt tm-table-actions-row">
                             <div class="tm-table-actions-col-left">
+                                <a class="nav-link d-flex">
+                                    <button type="submit" name="target" value="selected" class="btn">Delete Selected</button>
+                                </a>
                             </div>
                             <div class="tm-table-actions-col-right" >
-                                <a class="nav-link d-flex" href="../scripts/delete_all_eventdata.php">
-                                    <button type="submit" class="btn btn-danger">Delete Selected</button>
-                                </a>
+                                    <a class="nav-link d-flex">
+                                        <button type="submit" name="target" value="all" 
+                                                class="btn btn-danger"
+                                                title="Deletes all device and room data permanently."
+                                                >Delete All Data</button>
+                                    </a>
                             </div>
                         </div>
                         </form>
@@ -140,7 +146,17 @@
                                     </div>
                                     <div>
                                         <label for="room" >Device Room </label>
-                                        <input id="room" name="room" type="text" class="form-control validate" required>
+                                        <select name="room" class="custom-select" id="room" required>              
+                                            <option value="" disabled selected hidden>Choose a room</option>
+                                            <?php 
+                                                if ($roomdata->num_rows > 0) {
+                                                    while($room = $roomdata->fetch_assoc()) {
+                                                        echo "<option value=\"", $room["name"], "\">", $room["name"], "</option>";
+                                                    }
+                                                } 
+                                            ?>
+                                        </select>
+                                        <p style = "margin-top:25px"></p>
                                     </div>
                                     <div >
                                         <label for="uid">Device Brand</label>
@@ -164,9 +180,51 @@
                                 </form>
                             </div>
                         </div>
+                        <div>
+                            <div>
+                                <h2 class="tm-block-title d-inline-block">Add Room</h2>
+                                <form action="../scripts/add_room.php" class="tm-edit-product-form" method="POST">
+                                    <div>
+                                        <label for="name">Room Name </label>
+                                        <input id="name" name="name" type="text" class="form-control validate" required>
+                                    </div>
+
+                                    <div class="input-group mb-3" style="margin-top:30px; margin-buttom:10px;">
+                                        <div class="ml-auto col-xl-8 pl-0">
+                                            <button type="submit" class="btn btn-primary">Add</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            <div>
+                                <h2 class="tm-block-title d-inline-block">Remove Room</h2>
+                                <form action="../scripts/remove_room.php" class="tm-edit-product-form" method="POST">
+                                    <div>
+                                        <label for="name">Room Name </label>
+                                        <select name="name" class="custom-select" id="name" required>              
+                                            <option value="" disabled selected hidden>Choose a room</option>
+                                            <?php 
+                                                $roomdata->data_seek(0);
+                                                if ($roomdata->num_rows > 0) {
+                                                    while($room = $roomdata->fetch_assoc()) {
+                                                        echo "<option value=\"", $room["name"], "\">", $room["name"], "</option>";
+                                                    }
+                                                } 
+                                            ?>
+                                        </select>
+                                    </div>
+
+                                    <div class="input-group mb-3" style="margin-top:30px; margin-buttom:10px;">
+                                        <div class="ml-auto col-xl-8 pl-0">
+                                            <button title="Note: deleting a room deletes all its devices" type="submit" class="btn btn-primary">Remove</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            
+            </div>
             <footer class="row tm-mt-small">
             </footer>
         </div>
