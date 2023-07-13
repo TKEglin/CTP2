@@ -1,6 +1,13 @@
 <?php
     @session_start();
     
+    # Checking that user is logged in
+    if(empty($_SESSION["loginVerified"]) or $_SESSION["loginVerified"] === false) {
+        header("Location: ../pages/login.php");
+        exit();
+    }
+    
+    
     $username = $_POST["username"];
     $password = $_POST["password"];
 

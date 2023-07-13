@@ -200,6 +200,10 @@ def initialize_database():
                     "type VARCHAR(255) NOT NULL, " +
                     "room VARCHAR(255) NOT NULL, " +
                     "device_JSON TEXT NOT NULL)")
+    # Room data
+    cursor.execute("CREATE TABLE IF NOT EXISTS roomdata (" +
+                    "uid INT AUTO_INCREMENT PRIMARY KEY, " +
+                    "name VARCHAR(255) NOT NULL)")
     
     # Supported devices
     cursor.execute("CREATE TABLE IF NOT EXISTS supporteddevices (" +

@@ -3,7 +3,7 @@
 
     # Checking that user is logged in
     if(empty($_SESSION["loginVerified"]) or $_SESSION["loginVerified"] === false) {
-        header("Location: login.php");
+        header("Location: ../pages/login.php");
         exit();
     }
     
