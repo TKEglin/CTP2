@@ -43,13 +43,16 @@ def run_firewatch():
             print("\nFirewatch shutting down")
             sys.exit(0)
             
-        if(user_input in ('restart', 'RESTART') and not controller_thread.is_alive()):  
-            print("\nRestarting controller thread...")
-            controller_thread = Thread(target=start_controller, 
-                                        args=(HOST, PORT, True), 
-                                        daemon=True            )
-            controller_thread.start()
-            print("Controller thread restarted.")
+        if(user_input in ('restart', 'RESTART')):  
+            if(not controller_thread.is_alive()):
+                print("\nRestarting controller thread...")
+                controller_thread = Thread(target=start_controller, 
+                                            args=(HOST, PORT, True), 
+                                            daemon=True            )
+                controller_thread.start()
+                print("Controller thread restarted.")
+            else:
+                print("Controller is still running.")
                     
 
 

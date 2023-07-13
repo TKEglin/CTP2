@@ -12,15 +12,13 @@
     include 'database_connection.php';
     $conn = OpenConnection();
 
-    $query = "INSERT IGNORE INTO `roomdata` (`name`)
-              VALUES ('$name')";
+    $query = "DELETE FROM `roomdata` WHERE `name` = '$name'";
+    $conn -> query($query);
 
-    echo $query;
-
-    $conn -> query(($query));
+    $query = "DELETE FROM `devicedata` WHERE `room` = '$name'";
+    $conn -> query($query);
 
     CloseConnection($conn);
-
 
     header("Location: ../pages/manage.php");
     exit();
