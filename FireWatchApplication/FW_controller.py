@@ -97,6 +97,7 @@ class FW_controller():
                 time_elapsed = time() - device.unwatched_start_time
                 if(time_elapsed > UNWATCHED_TIME_LIMIT):
                     time_exceeded = True
+                    break
                     
             if(time_exceeded):
                 print("Unwatched safe time limit exceeded!")
@@ -105,9 +106,9 @@ class FW_controller():
                 for room in self.occupied_rooms.values():
                     for device in room.warning_devices:
                         self.web_client.send_event(HEvent.TurningOnWarningLight, device.room)
-                    # Publishing turn on message for device
-                    message = "{\"" + device.type.actuator_value_name + "\": \"" + device.type.actuator_enable + "\"}" 
-                    self.device_handler.publish(device.generate_publish_topic(), message)
+                        # Publishing turn on message for device
+                        message = "{\"" + device.type.actuator_value_name + "\": \"" + device.type.actuator_enable + "\"}" 
+                        self.device_handler.publish(device.generate_publish_topic(), message)
                 
                 for device in self.watched_devices:
                     self.web_client.send_event(HEvent.CuttingPowerToDevice, device.room)
@@ -124,18 +125,18 @@ class FW_controller():
                 message = self.message_queue.get()
                 
                 json_object = json.loads(message.payload)
+                state  : str         = json_object[device.type.sensor_value_name]
                 device : MQTT_device = self.devices[message.device_uid]
                 room   : FW_room     = self.rooms[device.room]
-                state  : str         = json_object[device.type.sensor_value_name]
                 
                 print(f"Received payload: {message.payload} | Room: {device.room} | UID: {device.uid}")
                 
                 if(device.function == "Presence Sensor"):
                     # If occupant detected and room was not already occupied
                     if(state == "True" and not room.occupied):
+                        room.occupied = True
                         # Adding room to occupied rooms
                         self.occupied_rooms[room.name] = room
-                        room.occupied = True
                         print(f"    Room '{device.room}' now occupied.")
                         # If room has a watched device, watcher event is sent instead of occupant event
                         if(room.watched_device == True):
@@ -144,10 +145,10 @@ class FW_controller():
                             self.web_client.send_event(HEvent.OccupantDetected, device.room)
                             
                         # updating unwatched flag of all watched devices in room 
-                        for watched_device in room.watched_devices:
-                            watched_device.unwatched = False
-                            if(self.unwatched_devices.__contains__(watched_device)):
-                                self.unwatched_devices.remove(watched_device)
+                        for w_device in room.watched_devices:
+                            w_device.unwatched = False
+                            if(self.unwatched_devices.__contains__(w_device)):
+                                self.unwatched_devices.remove(w_device)
                             # If this was the last unwatched device and there are items in use, send event to server
                             if(self.unwatched_devices.__len__() == 0 and self.devices_in_use.__len__() > 0):
                                 self.web_client.send_event(HEvent.AllDevicesWatched)

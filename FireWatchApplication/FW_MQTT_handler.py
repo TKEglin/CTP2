@@ -28,11 +28,10 @@ class FW_MQTT_handler:
         self.MQTT_client.loop_forever()
     
     def message_received(self, client, userdata, message):
-        # Add message to queue
         fw_message = FW_Device_Message()
 
         # Retrieving UID and room from topic
-        topic_components: str = message.topic.split("/")
+        topic_components      = message.topic.split("/")
         fw_message.device_uid = int(topic_components[2])
         fw_message.room       = topic_components[1]
         fw_message.payload    = bytes.decode(message.payload, "utf-8")
