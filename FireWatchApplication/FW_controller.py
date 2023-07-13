@@ -25,8 +25,6 @@ class FW_controller():
         self.occupied_rooms: Dict[str, FW_room] = dict()
         # List watched devices
         self.watched_devices: List[MQTT_device] = list()
-        # List of warning devices.
-        self.warning_devices: List[MQTT_device] = list()
         # List of sensor devices. Used to subscribe to topics
         self.sensor_devices:  List[MQTT_device] = list()
         # List of of unwatched devices
@@ -58,7 +56,6 @@ class FW_controller():
                     self.sensor_devices.append(device)
                 case "Warning Device":
                     self.rooms[room_name].warning_devices.append(device)
-                    self.warning_devices.append(device)
                 case "Power Plug":
                     self.rooms[room_name].watched_devices.append(device)
                     self.watched_devices.append(device)

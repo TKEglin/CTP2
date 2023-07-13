@@ -7,6 +7,7 @@ from dataclasses import dataclass
 
 class DFunction(Enum):
     """Enumerator of the different device functions"""
+    # Note: not currently in use
     PresenceSensor = (1, "Presence Sensor")
     WarningDevice  = (2, "Warning Device")
     PowerPlug      = (3, "Power Plug")

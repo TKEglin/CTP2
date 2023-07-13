@@ -1,10 +1,11 @@
 import socket
 import pickle
 from typing import Dict
+from time import time
+
 from heucod import HeucodEvent
 from heucod import HeucodEventType as HEvent
 from FW_datatypes import MQTT_device
-from time import time
 
 class FW_TCP_client:
     def __init__(self, HOST: str, PORT: int):
