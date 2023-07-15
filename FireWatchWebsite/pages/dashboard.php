@@ -169,26 +169,33 @@
                 <div class="col-xl-4 col-lg-12 tm-md-12 tm-sm-12 tm-col">
                     <div class="bg-white tm-block h-100" style="max-height:800px;overflow:auto;">
                         <h2 class="tm-block-title">Room status</h2>
-                        <?php 
-                        if ($roomdata->num_rows > 0) {
-                            while($room = $roomdata->fetch_assoc()) {
-                                echo "
-                                    <div class=\"tm-table-mt tm-table-actions-row\">
-                                        <div class=\"tm-table-actions-col-left\">
-                                            <h3 style=\"color:", $room["statuscolor"], ";text-align:center\">", $room["name"], "</h3>
-                                        </div>
-                                        <div class=\"tm-table-actions-col-right\">";
-                                if($room["status"] === "None"){
-                                    echo "<h3 style=\"color:", $room["statuscolor"], ";text-align:center\"></h3>";
-                                }
-                                else{
-                                    echo "<h3 style=\"color:", $room["statuscolor"], ";text-align:center\">", $room["status"], "</h3>";
-                                }
-                                echo "  </div>
-                                    </div>";
-                            }
-                        } 
-                        ?>
+                        <div class="table-responsive" style="max-height:800px;overflow:auto;">
+                            <table class="table table-hover table-striped tm-table-striped-even mt-3 fw-table-scroll">
+                                <thead>
+                                    <tr class="tm-bg-gray">
+                                        <th scope="col">Room</th>
+                                        <th scope="col" class="text-center">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody><?php 
+                                    if ($roomdata->num_rows > 0) {
+                                        while($room = $roomdata->fetch_assoc()) {
+                                            echo "<tr>
+                                                <td style=\"color:", $room["statuscolor"], "\" class=\"tm-product-name\">", $room["name"], "</td>";
+                                            if($room["status"] === "None"){
+                                                echo "<td class=\"text-center\"></td>";
+                                            }
+                                            else{
+                                                echo "<td style=\"color:", $room["statuscolor"], "\" class=\"text-center\">", $room["status"], "</td>";
+                                            }
+                                            echo "</tr>";
+                                        }
+                                    } 
+                                    ?> 
+                                </tbody>
+                            </table>
+                        </div>
+
                     </div>
                 </div>
 

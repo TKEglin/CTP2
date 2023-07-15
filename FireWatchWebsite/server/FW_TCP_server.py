@@ -70,7 +70,7 @@ def connection_handler(connection: socket.socket, address):
     # #   "<message_purpose>:<data>"
     # # <data> can be left empty when not needed
 
-    # Checking for requests
+    # Checking for messages
     if(isinstance(message, str)):
         message_components = message.split(":")
         match message_components[0]:
@@ -79,9 +79,9 @@ def connection_handler(connection: socket.socket, address):
                 query = (f"SELECT * FROM devicedata")
                 cursor.execute(query)
                 device_rows = cursor.fetchall()
+                database_connection.commit()
                 
                 print(f"  Sending device data.")
-
                 connection.send(pickle.dumps(device_rows))
             case "longest_unwatched_timestamp":
                 cursor = database_connection.cursor()
@@ -110,12 +110,15 @@ def connection_handler(connection: socket.socket, address):
                 update_db_timestamp(cursor, -1)
                 reset_room_data(database_connection, cursor)
             case (HEvent.SystemOn.value      | 
-                  HEvent.SystemRestart.value |
-                  HEvent.NoDevicesInUse.value):
+                  HEvent.SystemRestart.value):
                 status = "System running | No devices in use"
                 statuscolor = "teal"
                 update_db_timestamp(cursor, -1)
                 initialize_room_data(database_connection, cursor)
+            case HEvent.NoDevicesInUse:
+                status = "System running | No devices in use"
+                statuscolor = "teal"
+                update_db_timestamp(cursor, -1)
             case HEvent.AllDevicesWatched.value:
                 status = "System running | All devices watched"
                 statuscolor = "green"
@@ -258,7 +261,7 @@ def initialize_database():
                     "statuscolor VARCHAR(255) NOT NULL, " +
                     "unwatchedtimestamp INT)")
     
-    # If systemdata has an entry, the database is initialized and function can return
+    # If systemdata already has an entry, the database is initialized and function can return
     cursor.execute("SELECT * FROM systemdata LIMIT 1")
     systemdata_row = cursor.fetchall()
     if(systemdata_row):
@@ -297,7 +300,7 @@ def initialize_database():
                     "room VARCHAR(255) NOT NULL, " +
                     "device_JSON TEXT NOT NULL)")
     # Room data
-    cursor.execute("CREATE TABLE IF NOT EXISTS userdata (" +
+    cursor.execute("CREATE TABLE IF NOT EXISTS roomdata (" +
                     "uid INT AUTO_INCREMENT PRIMARY KEY, " +
                     "name VARCHAR(255) NOT NULL, " +
                     "status VARCHAR(255)," +
@@ -343,6 +346,7 @@ def initialize_database():
                     "(name, `function`, device_JSON) " +
                     "VALUES " +
                     "('GLEDOPTO GL-MC-001PK', 'Warning Device', '" + device_JSON + "')")
+    
     #       IKEA_E1525_E1745
     device_JSON = MQTT_device_type(
                     brand_name        = "IKEA E1525/E1745",
@@ -355,8 +359,8 @@ def initialize_database():
                     "(name, `function`, device_JSON) " +
                     "VALUES " +
                     "('IKEA_E1525_E1745', 'Presence Sensor', '" + device_JSON + "')")
-    
     db_connection.commit()
+
     print("  Database initialized.")
     
     

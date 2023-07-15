@@ -41,6 +41,8 @@ class FW_controller():
     def run_controller(self, restart: bool):
         # Fetching and processing device data from server
         self.devices = self.web_client.request_device_data()
+        if(not self.devices): 
+            return -1 # Failed to get data, returning so user can restart
 
         for device in list(self.devices.values()):
             device: MQTT_device
@@ -125,8 +127,8 @@ class FW_controller():
                 message = self.message_queue.get()
                 
                 json_object = json.loads(message.payload)
-                state  : str         = json_object[device.type.sensor_value_name]
                 device : MQTT_device = self.devices[message.device_uid]
+                state  : str         = json_object[device.type.sensor_value_name]
                 room   : FW_room     = self.rooms[device.room]
                 
                 print(f"Received payload: {message.payload} | Room: {device.room} | UID: {device.uid}")

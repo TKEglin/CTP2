@@ -31,6 +31,7 @@ class FW_TCP_client:
                 devices = MQTT_device.fromSQL(device_rows)
         except:
             print("Failed to retrieve device data. Ensure that web server is running and try again.")
+            return None
             
         return devices
     
@@ -55,7 +56,6 @@ class FW_TCP_client:
                             event_type_enum = HEvent.value,
                             location        = room,
                             timestamp       = time())
-        
         
         console_message = f"  Sending '{HEvent.name}' event"
         if(room): 

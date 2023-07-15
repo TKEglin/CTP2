@@ -14,19 +14,21 @@ def SendPowerEvent(room: str, id: str, state: str):
     MQTT_client.publish(f"Zigbee2mqtt/{room}/{id}/", "{\"power\": \"" + state + "\"}")
 
 
-SendPowerEvent("Kitchen", "1", "110")
-SendPowerEvent("Bedroom", "7", "0")
-
-# SendOccupancyEvent("Kitchen"    , "2", "True")
-# SendOccupancyEvent("Living Room", "4", "True")
-# SendOccupancyEvent("Bathroom"   , "6", "True")
-# SendOccupancyEvent("Bedroom"    , "9", "True")
+SendPowerEvent("Kitchen", "1", "0")
+SendPowerEvent("Kitchen", "14", "0")
+SendPowerEvent("Basement", "11", "0")
 
 
 SendOccupancyEvent("Kitchen"    , "2", "False")
 SendOccupancyEvent("Living Room", "4", "False")
-SendOccupancyEvent("Bathroom"   , "6", "True")
-SendOccupancyEvent("Bedroom"    , "9", "True")
+SendOccupancyEvent("Garage"     , "6", "True")
+SendOccupancyEvent("Bedroom"    , "8", "False")
+SendOccupancyEvent("Bathroom"   , "10", "True")
+SendOccupancyEvent("Basement"   , "12", "False")
+
+
+
+
 
 
 
@@ -34,15 +36,20 @@ SendOccupancyEvent("Bedroom"    , "9", "True")
 # <?php 
 # if ($roomdata->num_rows > 0) {
 #     while($room = $roomdata->fetch_assoc()) {
-#         echo "<tr>
-#               <td style=\"color:", $room["statuscolor"], "\" class=\"tm-product-name\">", $room["name"], "</td>";
+#         echo "
+#             <div class=\"tm-table-mt tm-table-actions-row\">
+#                 <div class=\"tm-table-actions-col-left\">
+#                     <h3 style=\"color:", $room["statuscolor"], ";text-align:center\">", $room["name"], "</h3>
+#                 </div>
+#                 <div class=\"tm-table-actions-col-right\">";
 #         if($room["status"] === "None"){
-#             echo "<td class=\"text-center\"></td>";
+#             echo "<h3 style=\"color:", $room["statuscolor"], ";text-align:center\"></h3>";
 #         }
 #         else{
-#             echo "<td style=\"color:", $room["statuscolor"], "\" class=\"text-center\">", $room["status"], "</td>";
+#             echo "<h3 style=\"color:", $room["statuscolor"], ";text-align:center\">", $room["status"], "</h3>";
 #         }
-#         echo "</tr>";
+#         echo "  </div>
+#             </div>";
 #     }
 # } 
-# ?> 
+# ?>
