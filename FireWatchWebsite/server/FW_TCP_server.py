@@ -115,7 +115,7 @@ def connection_handler(connection: socket.socket, address):
                 statuscolor = "teal"
                 update_db_timestamp(cursor, -1)
                 initialize_room_data(database_connection, cursor)
-            case HEvent.NoDevicesInUse:
+            case HEvent.NoDevicesInUse.value:
                 status = "System running | No devices in use"
                 statuscolor = "teal"
                 update_db_timestamp(cursor, -1)
