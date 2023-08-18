@@ -53,9 +53,10 @@ def listener(TCPsocket: socket):
         connection, address = TCPsocket.accept()
 
         # Starting handler thread
-        Thread(target=connection_handler, 
-               args=(connection, address), 
-               daemon=True                ).start()
+        # Thread(target=connection_handler, 
+        #        args=(connection, address), 
+        #        daemon=True                ).start()
+        connection_handler(connection, address)
 
 def connection_handler(connection: socket.socket, address):
     message = pickle.loads(connection.recv(16384))
@@ -66,9 +67,9 @@ def connection_handler(connection: socket.socket, address):
                                                   password = "grp4")
     
                                      
-    # #   Server communication format: 
-    # #   "<message_purpose>:<data>"
-    # # <data> can be left empty when not needed
+    # # >  Server communication format: 
+    # # >  "<message_purpose>:<data>"
+    # # >  <data> can be left empty when not needed
 
     # Checking for messages
     if(isinstance(message, str)):

@@ -14,15 +14,15 @@ def SendPowerEvent(room: str, id: str, state: str):
     MQTT_client.publish(f"Zigbee2mqtt/{room}/{id}/", "{\"power\": \"" + state + "\"}")
 
 
-SendPowerEvent("køkken", "1", "0")
+SendPowerEvent("Kitchen", "4", "0")
 # SendPowerEvent("Kitchen", "14", "0")
 # SendPowerEvent("Basement", "11", "0")
 
 
-SendOccupancyEvent("køkken"    , "3", "False")
-SendOccupancyEvent("bad", "4", "False")
-# SendOccupancyEvent("Garage"     , "6", "True")
-# SendOccupancyEvent("Bedroom"    , "8", "False")
+SendOccupancyEvent("Kitchen", "1", "True")
+SendOccupancyEvent("Bedroom", "7", "True")
+SendOccupancyEvent("Bathroom", "6", "True")
+SendOccupancyEvent("Living Room", "5", "True")
 # SendOccupancyEvent("Bathroom"   , "10", "True")
 # SendOccupancyEvent("Basement"   , "12", "False")
 
