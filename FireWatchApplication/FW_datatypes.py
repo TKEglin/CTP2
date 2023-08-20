@@ -4,7 +4,7 @@ from typing import List
 from enum import Enum
 from dataclasses import dataclass
 
-TCP_BUFFER_SIZE = 4096
+TCP_BUFFER_SIZE = 1024
 
 class DFunction(Enum):
     """Enumerator of the different device functions"""
