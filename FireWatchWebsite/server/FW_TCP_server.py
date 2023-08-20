@@ -6,7 +6,7 @@ import pickle
 
 from heucod import HeucodEvent
 from heucod import HeucodEventType as HEvent
-from FW_datatypes import MQTT_device_type
+from FW_datatypes import MQTT_device_type, TCP_BUFFER_SIZE
 
 
 def run_server():
@@ -59,7 +59,7 @@ def listener(TCPsocket: socket):
         connection_handler(connection, address)
 
 def connection_handler(connection: socket.socket, address):
-    message = pickle.loads(connection.recv(16384))
+    message = pickle.loads(connection.recv(TCP_BUFFER_SIZE))
     
     database_connection = mysql.connector.connect(host     = "localhost",
                                                   database = "FireWatchData",
@@ -83,7 +83,7 @@ def connection_handler(connection: socket.socket, address):
                 database_connection.commit()
                 
                 print(f"  Sending device data.")
-                connection.send(pickle.dumps(device_rows))
+                connection.sendall(pickle.dumps(device_rows))
             case "longest_unwatched_timestamp":
                 cursor = database_connection.cursor()
                 timestamp = int(message_components[1])

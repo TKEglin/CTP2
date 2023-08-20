@@ -5,7 +5,7 @@ from time import time
 
 from heucod import HeucodEvent
 from heucod import HeucodEventType as HEvent
-from FW_datatypes import MQTT_device
+from FW_datatypes import MQTT_device, TCP_BUFFER_SIZE
 
 class FW_TCP_client:
     def __init__(self, HOST: str, PORT: int):
@@ -25,8 +25,15 @@ class FW_TCP_client:
                 TCPsocket.connect((self.HOST, self.PORT))
 
                 TCPsocket.send(pickle.dumps("send_device_data:"))
+
+                data = b''
+                while True:
+                    package = TCPsocket.recv(TCP_BUFFER_SIZE)
+                    data += package
+                    if(len(package) < TCP_BUFFER_SIZE):
+                        break
                 
-                device_rows = pickle.loads(TCPsocket.recv(16384))
+                device_rows = pickle.loads(data)
 
                 devices = MQTT_device.fromSQL(device_rows)
         except Exception as ex:
