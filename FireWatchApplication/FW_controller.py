@@ -51,17 +51,16 @@ class FW_controller():
             if(room_name not in list(self.rooms.keys())):
                 self.rooms[room_name] = FW_room()
                 self.rooms[room_name].name = room_name
-            
-            match device.function:
-                case "Presence Sensor":
-                    self.rooms[room_name].sensor_devices.append(device)
-                    self.sensor_devices.append(device)
-                case "Warning Device":
-                    self.rooms[room_name].warning_devices.append(device)
-                case "Power Plug":
-                    self.rooms[room_name].watched_devices.append(device)
-                    self.watched_devices.append(device)
-                    self.rooms[room_name].watched_device = True
+        
+            if device.function == "Presence Sensor":
+                self.rooms[room_name].sensor_devices.append(device)
+                self.sensor_devices.append(device)
+            elif device.function == "Warning Device":
+                self.rooms[room_name].warning_devices.append(device)
+            elif device.function == "Power Plug":
+                self.rooms[room_name].watched_devices.append(device)
+                self.watched_devices.append(device)
+                self.rooms[room_name].watched_device = True
             
 
         # Subscribing to topics and starting listener
