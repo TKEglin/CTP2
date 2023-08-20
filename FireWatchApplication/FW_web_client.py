@@ -29,8 +29,9 @@ class FW_TCP_client:
                 device_rows = pickle.loads(TCPsocket.recv(16384))
 
                 devices = MQTT_device.fromSQL(device_rows)
-        except:
+        except Exception as ex:
             print("Failed to retrieve device data. Ensure that web server is running and try again.")
+            print("\tException: " + str(ex))
             return None
             
         return devices
