@@ -83,7 +83,8 @@ def connection_handler(connection: socket.socket, address):
                 database_connection.commit()
                 
                 print(f"  Sending device data.")
-                connection.sendall(pickle.dumps(device_rows))
+                # Using protocol for compatibility with older python versions
+                connection.sendall(pickle.dumps(device_rows, protocol=4 ))
             case "longest_unwatched_timestamp":
                 cursor = database_connection.cursor()
                 timestamp = int(message_components[1])
