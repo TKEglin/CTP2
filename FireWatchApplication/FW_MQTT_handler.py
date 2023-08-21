@@ -32,7 +32,7 @@ class FW_MQTT_handler:
 
         # Retrieving UID and room from topic
         topic_components      = message.topic.split("/")
-        fw_message.device_uid = int(topic_components[2])
+        fw_message.device_uid = int(topic_components[3])
         fw_message.room       = topic_components[1]
         fw_message.payload    = bytes.decode(message.payload, "utf-8")
 

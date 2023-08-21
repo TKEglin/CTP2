@@ -23,10 +23,12 @@ class FW_controller():
         self.rooms: Dict[str, FW_room] = dict()
         # Dict of occupied rooms mapped to room names. Used to turn on warning devices only in occupied rooms
         self.occupied_rooms: Dict[str, FW_room] = dict()
-        # List watched devices
+        # List of watched devices
         self.watched_devices: List[MQTT_device] = list()
         # List of sensor devices. Used to subscribe to topics
         self.sensor_devices:  List[MQTT_device] = list()
+        # List of warning devices
+        self.warning_devices: List[MQTT_device] = list()
         # List of of unwatched devices
         self.unwatched_devices: List[MQTT_device] = list()
         # List of watched devices that are using power
@@ -57,6 +59,7 @@ class FW_controller():
                 self.sensor_devices.append(device)
             elif device.function == "Warning Device":
                 self.rooms[room_name].warning_devices.append(device)
+                self.warning_devices.append(device)
             elif device.function == "Power Plug":
                 self.rooms[room_name].watched_devices.append(device)
                 self.watched_devices.append(device)
@@ -69,6 +72,9 @@ class FW_controller():
             device: MQTT_device
             topic = device.generate_subscription_topic()
             self.device_handler.subscribe(topic)
+        
+        for device in chain(self.watched_devices, self.warning_devices):
+            print("    Actuator topic found: " + device.generate_publish_topic())
 
         self.device_handler.start_listener()
         print("")

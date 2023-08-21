@@ -64,14 +64,14 @@ class MQTT_device:
     def generate_subscription_topic(self) -> str:
         # Example           zigbee2mqtt   / kitchen   / 12         / 
         # Topic formatting: general_topic + room name + device uid + sensor topic
-        topic = self.type.general_topic + "/" + self.room + "/" + str(self.uid) + "/" + self.type.sensor_topic
+        topic = self.type.general_topic + "/" + self.room + "/uid/" + str(self.uid) + "/" + self.function + "/" + self.type.sensor_topic
 
         return topic
 
     def generate_publish_topic(self) -> str:
         # Example           zigbee2mqtt   / kitchen   / 12         / 
         # Topic formatting: general_topic + room name + device uid + actuator topic
-        topic = self.type.general_topic + "/" + self.room + "/" + str(self.uid) + "/" + self.type.actuator_topic
+        topic = self.type.general_topic + "/" + self.room + "/uid/" + str(self.uid) + "/" + self.function + "/" + self.type.actuator_topic
 
         return topic
 
