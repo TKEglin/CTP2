@@ -147,6 +147,8 @@ def connection_handler(connection: socket.socket, address):
             db_status      : str = roomdata[2]
             devices_in_use : int = roomdata[4]
             
+            # NOTE: The following logic handles room status. It would be better if this was
+            #       done client side rather than having in the display part of the system.
             status_changed = True
             match event.event_type_enum:
                 case HEvent.WatchedDeviceActivated.value:
