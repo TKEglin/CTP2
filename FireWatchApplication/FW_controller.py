@@ -14,7 +14,7 @@ UNWATCHED_TIME_LIMIT = 1200 # seconds
 
 class FW_controller():
     
-    def __init__(self, FW_client: FW_TCP_client):
+    def __init__(self, FW_client: FW_TCP_client, MQTT_HOST: str, MQTT_PORT: int):
         self.web_client = FW_client
         
         # Dictionary of all connected devices mapped to UIDs:
@@ -37,7 +37,8 @@ class FW_controller():
         self.longest_unwatched_uid = -1
 
         self.message_queue = Queue()
-        self.device_handler = FW_MQTT_handler("127.0.0.1", 1883, self.message_queue)
+        print("Connecting to MQTT_Handler with ")
+        self.device_handler = FW_MQTT_handler(MQTT_HOST, MQTT_PORT, self.message_queue)
     
 
     def run_controller(self, restart: bool):

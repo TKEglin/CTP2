@@ -5,10 +5,12 @@ from threading import Thread
 from heucod import HeucodEventType as HEvent
 
 class Main:
-    def start_controller(HOST:str, PORT: str, restart: bool):
+    def start_controller(TCP_HOST: str, TCP_PORT: int, 
+                         MQTT_HOST: str, MQTT_PORT: int,
+                         restart: bool):
         
-        client = FW_TCP_client(HOST, PORT)
-        controller = FW_controller(client)
+        client = FW_TCP_client(TCP_HOST, TCP_PORT)
+        controller = FW_controller(client, MQTT_HOST, MQTT_PORT)
         
         exit_value = controller.run_controller(restart)
         if(exit_value == 1):
@@ -18,16 +20,20 @@ class Main:
 
 
     def run_firewatch():
-        HOST = str(sys.argv[1]) # Web server IP
-        PORT = 2001
+        TCP_HOST = str(sys.argv[1]) # Web server IP
+        TCP_PORT = 2001
+        MQTT_HOST = str(sys.argv[2]) # MQTT server IP
+        MQTT_PORT = 1883
         
-        client = FW_TCP_client(HOST, PORT)
+        client = FW_TCP_client(TCP_HOST, TCP_PORT)
         
         print("Initializing Firewatch controller...")
 
         # Starting controller
         controller_thread = Thread(target=Main.start_controller, 
-                                    args=(HOST, PORT, False), 
+                                    args=(TCP_HOST, TCP_PORT, 
+                                          MQTT_HOST, MQTT_PORT,
+                                          False), 
                                     daemon=True)
         controller_thread.start()
         print("  Controller thread started.")
@@ -47,7 +53,7 @@ class Main:
                 if(not controller_thread.is_alive()):
                     print("\nRestarting controller thread...")
                     controller_thread = Thread(target=Main.start_controller, 
-                                                args=(HOST, PORT, True), 
+                                                args=(TCP_HOST, TCP_PORT, True), 
                                                 daemon=True            )
                     controller_thread.start()
                     print("Controller thread restarted.")
