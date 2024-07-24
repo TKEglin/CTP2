@@ -10,8 +10,18 @@ class FW_MQTT_handler:
 
         self.MQTT_client = mqtt.Client()
         self.MQTT_client.on_message = self.message_received
+        self.MQTT_client.on_connect = self.connection_established
+        self.MQTT_client.on_connect_fail = self.connection_failed
+
+        self.MQTT_client.username_pw_set(username = "LoftNet", password = "emcue123")
+        print("Connecting to MQTT client...")
         self.MQTT_client.connect(broker_ip, broker_port)
-        
+    
+    def connection_established(client, userdata, flags, rc, properties):
+        print(f"Connected to MQTT broker with result code {str(rc)}")
+
+    def connection_failed(client, userdata, flags, rc):
+        print("Failed to connect to MQTT broker. Restart the client to try again.")
 
     #                         #
     # Listening Functionality #
@@ -25,15 +35,16 @@ class FW_MQTT_handler:
         Thread(target=self.listener, daemon=True).start()
     
     def listener(self):
+        print("MQTT handler starting listener")
         self.MQTT_client.loop_forever()
     
     def message_received(self, client, userdata, message):
         fw_message = FW_Device_Message()
 
         # Retrieving UID and room from topic
+        # Topic format must be "{DeviceName}/{UID}uid"
         topic_components      = message.topic.split("/")
-        fw_message.device_uid = int(topic_components[3])
-        fw_message.room       = topic_components[1]
+        fw_message.device_uid = int(topic_components[2][:-3])
         fw_message.payload    = bytes.decode(message.payload, "utf-8")
 
         self.message_queue.put(fw_message)
@@ -43,4 +54,5 @@ class FW_MQTT_handler:
     # Publishing Functionality #
     #                          #
     def publish(self, topic: str, message: str):
+        print(f"Publishing to topic {topic}: {message}")
         self.MQTT_client.publish(topic, message)

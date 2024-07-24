@@ -319,9 +319,9 @@ def initialize_database():
                     "`function` VARCHAR(255) NOT NULL, " +
                     "device_JSON TEXT NOT NULL)")
     #   Adding supported devices
-    #       Immax NEO 07048L
+    #       Innr SP 220 Smart Plug
     device_JSON = MQTT_device_type(
-                    brand_name          = "Immax NEO 07048L power unit",
+                    brand_name          = "Innr SP 220 Smart Plug",
                     general_topic       = "Zigbee2mqtt",
                     device_function     = "Power Plug",
                     actuator_topic      = "set",
@@ -329,31 +329,47 @@ def initialize_database():
                     actuator_enable     = "ON",
                     actuator_disable    = "OFF",
                     sensor_topic        = "",
-                    sensor_value_name   = "power",
+                    sensor_value_name   = "state",
                     sensor_threshold    = 10 # In_use/not in_use threshold
                     ).toJSON()
     cursor.execute("INSERT INTO supporteddevices " +
                     "(name, `function`, device_JSON) " +
                     "VALUES " +
-                    "('Immax NEO 07048L', 'Power Plug', '" + device_JSON + "')")
-    #       GLEDOPTO GL-MC-001PK
+                    "('Innr SP 220 Smart Plug', 'Power Plug', '" + device_JSON + "')")
+    
+    #       LEDVANCE GU10 RGBWK
     device_JSON = MQTT_device_type(
-                    brand_name          = "GLEDOPTO GL-MC-001PK",
+                    brand_name          = "LEDVANCE GU10 RGBWK",
                     general_topic       = "Zigbee2mqtt",
                     device_function     = "Warning Device",
                     actuator_topic      = "set",
-                    actuator_value_name = "state",
-                    actuator_enable     = "ON",
-                    actuator_disable    = "OFF",
+                    actuator_value_name = "color",
+                    actuator_enable     = "INPUT COLOR JSON HERE",
+                    actuator_disable    = "INPUT COLOR JSON HERE",
                 ).toJSON()
     cursor.execute("INSERT INTO supporteddevices " +
                     "(name, `function`, device_JSON) " +
                     "VALUES " +
-                    "('GLEDOPTO GL-MC-001PK', 'Warning Device', '" + device_JSON + "')")
+                    "('LEDVANCE GU10 RGBWK', 'Warning Device', '" + device_JSON + "')")
     
-    #       IKEA_E1525_E1745
+    #       LEDVANCE E27 RGBWK
     device_JSON = MQTT_device_type(
-                    brand_name        = "IKEA E1525/E1745",
+                    brand_name          = "LEDVANCE E27 RGBWK",
+                    general_topic       = "Zigbee2mqtt",
+                    device_function     = "Warning Device",
+                    actuator_topic      = "set",
+                    actuator_value_name = "color",
+                    actuator_enable     = "INPUT COLOR JSON HERE",
+                    actuator_disable    = "INPUT COLOR JSON HERE",
+                ).toJSON()
+    cursor.execute("INSERT INTO supporteddevices " +
+                    "(name, `function`, device_JSON) " +
+                    "VALUES " +
+                    "('LEDVANCE E27 RGBWK', 'Warning Device', '" + device_JSON + "')")
+
+    #       Sonoff SNZB-03 Motion Sensor
+    device_JSON = MQTT_device_type(
+                    brand_name        = "Sonoff SNZB-03 Motion Sensor",
                     general_topic     = "Zigbee2mqtt",
                     device_function   = "Presence Sensor",
                     sensor_topic      = "",
@@ -362,7 +378,7 @@ def initialize_database():
     cursor.execute("INSERT INTO supporteddevices " +
                     "(name, `function`, device_JSON) " +
                     "VALUES " +
-                    "('IKEA_E1525_E1745', 'Presence Sensor', '" + device_JSON + "')")
+                    "('Sonoff SNZB-03 Motion Sensor', 'Presence Sensor', '" + device_JSON + "')")
     db_connection.commit()
 
     print("  Database initialized.")

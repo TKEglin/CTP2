@@ -53,14 +53,14 @@ class Main:
                 if(not controller_thread.is_alive()):
                     print("\nRestarting controller thread...")
                     controller_thread = Thread(target=Main.start_controller, 
-                                                args=(TCP_HOST, TCP_PORT, True), 
+                                    args=(TCP_HOST, TCP_PORT, 
+                                          MQTT_HOST, MQTT_PORT,
+                                          False), 
                                                 daemon=True            )
                     controller_thread.start()
                     print("Controller thread restarted.")
                 else:
                     print("Controller is still running.")
-                    
-
 
 if __name__ == '__main__':
     Main.run_firewatch()

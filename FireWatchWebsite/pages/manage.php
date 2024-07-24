@@ -91,6 +91,7 @@
                                         <th scope="col">Device Name</th>
                                         <th scope="col">Room</th>
                                         <th scope="col">Type</th>
+                                        <th scope="col">ID</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -108,6 +109,7 @@
                                                 <td class=\"tm-product-name\">", $device["name"], "</td>
                                                 <td>", $device["room"], "</td>
                                                 <td>", $device["type"], "</td>
+                                                <td>", $device["uid"], "</td>
                                             </tr>";
                                         }
                                     }

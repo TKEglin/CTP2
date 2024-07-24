@@ -10,7 +10,7 @@ from FW_web_client import FW_TCP_client
 from FW_MQTT_handler import FW_MQTT_handler
 
 
-UNWATCHED_TIME_LIMIT = 1200 # seconds
+UNWATCHED_TIME_LIMIT = 60 # seconds
 
 class FW_controller():
     
@@ -37,7 +37,7 @@ class FW_controller():
         self.longest_unwatched_uid = -1
 
         self.message_queue = Queue()
-        print("Connecting to MQTT_Handler with ")
+        print(f"Connecting to MQTT_Handler with HOST IP {MQTT_HOST} and port {MQTT_PORT}")
         self.device_handler = FW_MQTT_handler(MQTT_HOST, MQTT_PORT, self.message_queue)
     
 
@@ -115,7 +115,10 @@ class FW_controller():
                     for device in room.warning_devices:
                         self.web_client.send_event(HEvent.TurningOnWarningLight, device.room)
                         # Publishing turn on message for device
-                        message = "{\"" + device.type.actuator_value_name + "\": \"" + device.type.actuator_enable + "\"}" 
+                                                                    # NOTE: Temporary hard-coding of colors. 
+                                                                    # Major changes to datatypes required to 
+                                                                    # implement different actuator types:
+                        message = "{\"" + device.type.actuator_value_name + "\": {\"x\": 0.6942,\"y\": 0.2963}" + "}" 
                         self.device_handler.publish(device.generate_publish_topic(), message)
                 
                 for device in self.watched_devices:
@@ -134,14 +137,17 @@ class FW_controller():
                 
                 json_object = json.loads(message.payload)
                 device : MQTT_device = self.devices[message.device_uid]
-                state  : str         = json_object[device.type.sensor_value_name]
+                state                = json_object[device.type.sensor_value_name]
                 room   : FW_room     = self.rooms[device.room]
                 
-                print(f"Received payload: {message.payload} | Room: {device.room} | UID: {device.uid}")
+                print(f"Received payload: {message.payload}")
+                print(f"    | Room: {device.room} | UID: {device.uid}")
+                print(f"    | Device function: {device.function}")
+                print(f"    | State: {device.type.sensor_value_name} : {state}")
                 
                 if(device.function == "Presence Sensor"):
                     # If occupant detected and room was not already occupied
-                    if(state == "True" and not room.occupied):
+                    if(state == True and not room.occupied):
                         room.occupied = True
                         # Adding room to occupied rooms
                         self.occupied_rooms[room.name] = room
@@ -162,7 +168,7 @@ class FW_controller():
                                 self.web_client.send_event(HEvent.AllDevicesWatched)
                             
                     # If no occupant detected and room was previously occupied
-                    elif(state == "False" and room.occupied):
+                    elif(state == False and room.occupied):
                         room.occupied = False
                         print(f"    Room '{device.room}' no longer occupied.")
                         if(room.watched_device == True):
@@ -184,7 +190,7 @@ class FW_controller():
                         
                 elif(device.function == "Power Plug"):
                     # if power above threshold and device was not in use
-                    if(int(state) >= device.type.sensor_threshold and not device.in_use):
+                    if(state == "ON" and not device.in_use):
                         device.in_use = True
                         print(f"    Device with name '{device.name}' in room '{device.room}' now in use.")
                         self.web_client.send_event(HEvent.WatchedDeviceActivated, device.room)
@@ -202,7 +208,7 @@ class FW_controller():
                             self.web_client.send_event(HEvent.AllDevicesWatched)
                             
                     # else if power below threshold and device was in use
-                    elif(int(state) < device.type.sensor_threshold and device.in_use):
+                    elif(state == "OFF" and device.in_use):
                         device.in_use = False
                         print(f"    Device with name '{device.name}' in room '{device.room}' no longer in use.")
                         self.web_client.send_event(HEvent.WatchedDeviceShutdown, device.room)
