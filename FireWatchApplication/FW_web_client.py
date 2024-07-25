@@ -29,7 +29,6 @@ class FW_TCP_client:
                 data = b''
                 while True:
                     package = TCPsocket.recv(TCP_BUFFER_SIZE)
-                    print("Getting data...")
                     data += package
                     if(not package or len(package) < TCP_BUFFER_SIZE):
                         print("All data received.")
@@ -37,13 +36,14 @@ class FW_TCP_client:
                 
                 device_rows = pickle.loads(data)
                 devices = MQTT_device.fromSQL(device_rows)
+                print("Getting data...")
 
         except Exception as ex:
-            if (attempts < 10):
+            if (attempts < 15):
                 print(f"    Retry {attempts+1}...")
                 # Retrying recursively
                 # Increasing wait time for each attempt in case of server overload.
-                sleep(0.25*attempts)
+                sleep(0.1*attempts)
                 devices = self.request_device_data(attempts + 1)
             else:
                 print("Failed to retrieve device data. Ensure that web server is running and try again.")
