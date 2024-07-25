@@ -1,7 +1,7 @@
 import socket
 import pickle
 from typing import Dict
-from time import time
+from time import time, sleep
 
 from heucod import HeucodEvent
 from heucod import HeucodEventType as HEvent
@@ -13,7 +13,7 @@ class FW_TCP_client:
         self.HOST = HOST
         self.PORT = PORT
 
-    def request_device_data(self) -> Dict[int, MQTT_device]:
+    def request_device_data(self, attempts: int = 0) -> Dict[int, MQTT_device]:
         """Returns a list of MQTT_devices"""
 
         print("Retrieving device data from server.")
@@ -36,14 +36,20 @@ class FW_TCP_client:
                         break
                 
                 device_rows = pickle.loads(data)
+                devices = MQTT_device.fromSQL(device_rows)
 
         except Exception as ex:
-            print("Failed to retrieve device data. Ensure that web server is running and try again.")
-            print("\tException: " + str(ex))
-            return None
+            if (attempts < 10):
+                print(f"    Retry {attempts+1}...")
+                # Retrying recursively
+                # Increasing wait time for each attempt in case of server overload.
+                sleep(0.25*attempts)
+                devices = self.request_device_data(attempts + 1)
+            else:
+                print("Failed to retrieve device data. Ensure that web server is running and try again.")
+                print("\tException: " + str(ex))
+                return None
         
-        devices = MQTT_device.fromSQL(device_rows)
-            
         return devices
     
     
