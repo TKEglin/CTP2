@@ -42,8 +42,8 @@ class FW_TCP_client:
             if (attempts < 15):
                 print(f"    Retry {attempts+1}...")
                 # Retrying recursively
-                # Increasing wait time for each attempt in case of server overload.
-                sleep(0.1*attempts)
+                # Increasing wait time exponentially for each attempt in case of server overload.
+                sleep(0.1 * 2**attempts)
                 devices = self.request_device_data(attempts + 1)
             else:
                 print("Failed to retrieve device data. Ensure that web server is running and try again.")
