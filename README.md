@@ -17,6 +17,7 @@ The website was tested using Microsoft's WAMP.net, that is, Apache HTTP server, 
   3. Make sure to run the Firewatch server at least once, as this will initialize the database.
   4. Navigate to `{server IP address}/pages/login.php` in any web browser. This will take you to the login page.
   5. Login using the default username and password (`admin`, `admin`).
+
 You will now have access to the system dashboard. You can click `Manage System` to access the device management system.
 
 ## Note on device friendly names
