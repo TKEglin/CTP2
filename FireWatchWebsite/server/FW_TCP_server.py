@@ -36,7 +36,7 @@ class TCP_Server:
             
             # Starting listener thread
             Thread(target=self.listener, 
-                args=(self, TCPsocket,), 
+                args=(TCPsocket,), 
                 daemon=True       ).start()
 
             # Ready to process input
@@ -217,7 +217,7 @@ class TCP_Server:
         connection.close()
 
 
-    def update_db_timestamp(cursor, timestamp: int):
+    def update_db_timestamp(self, cursor, timestamp: int):
         """Adds the timestamp to the unwatchedtimestamp field of the systemdata table"""
         query = (f"UPDATE systemdata SET unwatchedtimestamp = \"{timestamp}\" LIMIT 1")
         cursor.execute(query)
@@ -229,7 +229,7 @@ class TCP_Server:
         self.reset_room_data(db_connection = db_connection, cursor = cursor, status="Not Occupied")
         
         
-    def reset_room_data(db_connection = None, cursor = None, status = None):
+    def reset_room_data(self, db_connection = None, cursor = None, status = None):
         """Sets all status and statuscolor fields in roomdata to null"""
         if(not db_connection):
             db_connection = mysql.connector.connect(host     = "localhost",
@@ -250,7 +250,7 @@ class TCP_Server:
 
             
             
-    def initialize_database():
+    def initialize_database(self):
         db_connection = mysql.connector.connect(
             host = "127.0.0.1",
             user = "root",
