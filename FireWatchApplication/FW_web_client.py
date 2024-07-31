@@ -68,7 +68,6 @@ class FW_TCP_client:
 
 
     def send_event(self, HEvent: HEvent, room: str = None):
-        
         event = HeucodEvent(event_type      = HEvent,
                             event_type_enum = HEvent.value,
                             location        = room,

@@ -84,7 +84,7 @@ class FW_controller():
         if(restart):
             self.web_client.send_event(HEvent.SystemRestart)
         else:
-            self.web_client.send_event(HEvent.SystemOn)
+            self.web_client.send_event(HEvent.SystemOn) 
 
         # Main control loop
         while True:
