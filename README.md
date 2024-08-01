@@ -7,8 +7,9 @@
 
 ## Running the controller
   1. Make sure that all required python packages are installed.
-  2. Navigate to the FireWatchApplication folder
-  3. Run the file `FW_main.py` in the terminal with parameters `{FireWatch Server IP} {MQTT Server IP}` using the server IP printed to the console when you ran `FW_TCP_server.py` and the IP of your MQTT server. Example: `python3 FW_main.py 192.168.0.60 192.168.0.104`
+  2. Ensure that an MQTT server is running on the network and that Zigbee2MQTT is running on the controller machine.
+  3. Navigate to the FireWatchApplication folder
+  4. Run the file `FW_main.py` in the terminal with parameters `{FireWatch Server IP} {MQTT Server IP}` using the server IP printed to the console when you ran `FW_TCP_server.py` and the IP of your MQTT server. Example: `python3 FW_main.py 192.168.0.60 192.168.0.104`
 
 ## Running the website
 The website was tested using Microsoft's WAMP.net, that is, Apache HTTP server, MySQL database, and the PHP programming language running on Windows OS. Both MySQL and PHP are required, but it should be possible to run the website using different operating systems and HTTP servers. 
