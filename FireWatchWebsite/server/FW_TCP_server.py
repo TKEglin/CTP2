@@ -52,19 +52,15 @@ class TCP_Server:
         while True:
             connection, address = TCPsocket.accept()
 
-            # Starting handler thread
-            # Thread(target=connection_handler, 
-            #        args=(connection, address), 
-            #        daemon=True                ).start()
             self.connection_handler(connection, address)
 
     def connection_handler(self, connection: socket.socket, address):
         message = pickle.loads(connection.recv(TCP_BUFFER_SIZE))
         
         database_connection = mysql.connector.connect(host     = "localhost",
-                                                    database = "FireWatchData",
-                                                    username = "root",
-                                                    password = "grp4")
+                                                      database = "FireWatchData",
+                                                      username = "root",
+                                                      password = "grp4")
         
                                         
         # # >  Server communication format: 
@@ -147,8 +143,6 @@ class TCP_Server:
                 db_status      : str = roomdata[2]
                 devices_in_use : int = roomdata[4]
                 
-                # NOTE: The following logic handles room status. It would be better if this was
-                #       done client side rather than having in the display part of the system.
                 status_changed = True
                 match event.event_type_enum:
                     case HEvent.WatchedDeviceActivated.value:
